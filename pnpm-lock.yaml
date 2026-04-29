@@ -9,13 +9,13 @@ importers:
   .:
     dependencies:
       '@ochairo/beat':
-        specifier: ^1.1.7
-        version: 1.1.7
+        specifier: ^1.1.8
+        version: 1.1.8
       '@ochairo/numbers':
         specifier: ^0.1.1
         version: 0.1.2
       '@ochairo/pulse':
-        specifier: ^1.1.3
+        specifier: ^1.1.4
         version: 1.1.4
       '@ochairo/scales':
         specifier: ^0.1.1
@@ -213,8 +213,8 @@ packages:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
 
-  '@ochairo/beat@1.1.7':
-    resolution: {integrity: sha512-CjzctesWfUi3fWKlIs+1KMmThMhLTHug3hAz7uCmcDuF5wM7Ufn4N1tKtxayqHWbB20Tm12yhJ6PAJqVR50B9w==}
+  '@ochairo/beat@1.1.8':
+    resolution: {integrity: sha512-FV33HacCEOk4Z/o0+3+EYRMST69osc+OCZGlqgmWL9HUmk9sCtKA3IdOEszdqzlX35uBpNqZayhrJTCvCRAkkA==}
     engines: {node: '>=20.0.0'}
 
   '@ochairo/numbers@0.1.2':
@@ -777,7 +777,7 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@ochairo/beat@1.1.7':
+  '@ochairo/beat@1.1.8':
     dependencies:
       '@ochairo/pulse': 1.1.4
 
