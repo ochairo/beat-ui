@@ -6,6 +6,11 @@
 
 UI component library for [Beat](https://github.com/ochairo/beat) applications.
 
+[![npm version](https://img.shields.io/npm/v/@ochairo/beat-ui)](https://www.npmjs.com/package/@ochairo/beat-ui)
+[![npm downloads](https://img.shields.io/npm/dm/@ochairo/beat-ui)](https://www.npmjs.com/package/@ochairo/beat-ui)
+![CI](https://github.com/ochairo/beat-ui/workflows/validate/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
 </div>
 
 ## Installation
