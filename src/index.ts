@@ -7,6 +7,7 @@ export {
   Input,
   Loading,
   RadioButton,
+  TerminalCard,
   SparkLine,
   Switch,
   TextArea,
@@ -47,6 +48,7 @@ export type { CheckBoxProps } from "./components/styled/atoms";
 export type { InputProps } from "./components/styled/atoms";
 export type { LoadingProps } from "./components/styled/atoms";
 export type { RadioButtonProps } from "./components/styled/atoms";
+export type { TerminalCardProps } from "./components/styled/atoms";
 export type { SparkLineProps } from "./components/styled/atoms";
 export type { SwitchProps } from "./components/styled/atoms";
 export type { TextAreaProps } from "./components/styled/atoms";
