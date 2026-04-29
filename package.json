@@ -1,6 +1,6 @@
 {
   "name": "@ochairo/beat-ui",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "UI component catalog and foundations for Beat applications",
   "type": "module",
   "main": "./dist/index.js",
