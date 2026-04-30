@@ -1,6 +1,6 @@
 {
   "name": "@ochairo/beat-ui",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "UI component catalog and foundations for Beat applications",
   "type": "module",
   "main": "./dist/index.js",
@@ -10,7 +10,7 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/index.css"
   },
   "sideEffects": [
     "**/*.css"
@@ -23,7 +23,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm clean && vite build --config vite.config.lib.ts && tsc --emitDeclarationOnly",
+    "build": "pnpm clean && vite build && tsc --emitDeclarationOnly",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",

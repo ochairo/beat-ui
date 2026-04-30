@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   build: {
@@ -26,5 +26,10 @@ export default defineConfig({
     modules: {
       localsConvention: "camelCase",
     },
+  },
+  test: {
+    environment: "happy-dom",
+    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
+    exclude: ["dist/**"],
   },
 });
