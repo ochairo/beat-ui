@@ -57,6 +57,9 @@
 }
 
 .root [data-part="brand"] {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
   font-size: 1.125rem;
   font-weight: 700;
   letter-spacing: -0.01em;

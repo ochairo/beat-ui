@@ -11,6 +11,8 @@ UI component library for [Beat](https://github.com/ochairo/beat) applications.
 ![CI](https://github.com/ochairo/beat-ui/workflows/validate/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
+[Documentation](https://ochairo.github.io/beat-site/)
+
 </div>
 
 ## Installation
