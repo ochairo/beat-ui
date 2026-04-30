@@ -1,0 +1,50 @@
+.root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--beat-ui-color-background-overlay);
+}
+
+.root [data-part="panel"] {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: min(32rem, 100%);
+  padding: 1.25rem;
+  border: 1px solid var(--beat-ui-color-border);
+  border-radius: 1.25rem;
+  background: var(--beat-ui-color-background-elevated);
+  color: var(--beat-ui-color-text);
+}
+
+.root [data-part="header"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.root [data-part="footer"] {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.root [data-part="close-button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--beat-ui-color-primary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}

@@ -1,0 +1,20 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.root > label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--beat-ui-color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.root > label input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--beat-ui-color-primary);
+}

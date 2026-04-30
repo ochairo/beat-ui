@@ -1,0 +1,39 @@
+.root {
+  background: var(--beat-ui-color-background-elevated);
+  border: 1px solid var(--beat-ui-color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.15s;
+}
+
+.radiusSm {
+  border-radius: 0.375rem;
+}
+.radiusMd {
+  border-radius: 0.5rem;
+}
+.radiusLg {
+  border-radius: 0.75rem;
+}
+.radiusXl {
+  border-radius: 1rem;
+}
+
+.paddingNone {
+  padding: 0;
+}
+.paddingSm {
+  padding: 0.5rem;
+}
+.paddingMd {
+  padding: 0.75rem;
+}
+.paddingLg {
+  padding: 1.25rem;
+}
+
+.flat {
+  box-shadow: none;
+}
+.pressable {
+  cursor: pointer;
+}

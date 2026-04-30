@@ -36,6 +36,8 @@ export {
   IconTerminal,
   IconCode,
   IconPackage,
+  IconCalendar,
+  IconClock,
 } from "./common";
 
 export {

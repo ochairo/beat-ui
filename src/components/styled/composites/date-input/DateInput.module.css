@@ -1,0 +1,70 @@
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+.root [data-part="input-wrapper"] {
+  display: flex;
+  align-items: center;
+  border-radius: 0.875rem;
+  overflow: hidden;
+  border: 1px solid var(--beat-ui-color-border);
+  background: var(--beat-ui-color-input);
+  transition: border-color 160ms ease;
+}
+
+.root [data-part="input-wrapper"][data-invalid="true"] {
+  border-color: var(--beat-ui-color-danger);
+}
+
+.root [data-part="input"] {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  padding: 0.75rem 0.875rem;
+  border: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--beat-ui-color-text);
+  font: inherit;
+  outline: none;
+}
+
+.root [data-part="input-overlay"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0.875rem;
+  pointer-events: none;
+  font: inherit;
+  color: var(--beat-ui-color-text);
+}
+
+.root [data-part="placeholder-char"] {
+  opacity: 0.4;
+}
+
+.root [data-part="icon-button"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  width: 2.75rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--beat-ui-color-muted);
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.root [data-part="calendar-wrapper"] {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  z-index: 50;
+}

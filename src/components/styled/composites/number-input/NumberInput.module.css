@@ -1,0 +1,60 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.875rem;
+  overflow: hidden;
+}
+
+.root > input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.875rem 0 0 0.875rem;
+  border: 1px solid var(--beat-ui-color-border);
+  border-right: none;
+  background: var(--beat-ui-color-input);
+  color: var(--beat-ui-color-text);
+  font: inherit;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.root > input[aria-invalid="true"] {
+  border-color: var(--beat-ui-color-danger);
+}
+
+.root [data-part="stepper-wrapper"] {
+  display: flex;
+  flex-direction: column;
+  min-height: 2.75rem;
+  border-radius: 0 0.875rem 0.875rem 0;
+  border: 1px solid var(--beat-ui-color-border);
+  border-left: none;
+  background: var(--beat-ui-color-input);
+  overflow: hidden;
+}
+
+.root [data-part="stepper-wrapper"][data-invalid="true"] {
+  border-color: var(--beat-ui-color-danger);
+}
+
+.root [data-part="step-button"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 1.75rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--beat-ui-color-muted);
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}

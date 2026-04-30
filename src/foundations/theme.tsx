@@ -1,8 +1,8 @@
 import { component, onCleanup } from "@ochairo/beat";
-import { pulse } from "@ochairo/pulse";
+import { derived, pulse } from "@ochairo/pulse";
 
 import type { BeatUiContentProps } from "./conventions";
-import type { BeatUiState } from "../runtime";
+import type { BeatUiReadonlyState, BeatUiState } from "../runtime";
 
 export type BeatUiThemeMode = "light" | "dark";
 export type BeatUiThemePreference = BeatUiThemeMode | "system";
@@ -59,7 +59,7 @@ export interface CreateThemeDefinitionOptions {
 export interface BeatUiThemeController {
   readonly preference: BeatUiState<BeatUiThemePreference>;
   readonly mode: BeatUiState<BeatUiThemeMode>;
-  readonly theme: BeatUiState<BeatUiThemeDefinition>;
+  readonly theme: BeatUiReadonlyState<BeatUiThemeDefinition>;
   setMode(nextMode: BeatUiThemeMode): void;
   setPreference(nextPreference: BeatUiThemePreference): void;
   toggleMode(): void;
@@ -276,9 +276,6 @@ export function createThemeController(
   const mode = pulse<BeatUiThemeMode>(
     resolveThemeMode(preference.get(), mediaQuery),
   );
-  const theme = pulse<BeatUiThemeDefinition>(
-    mode.get() === "dark" ? darkTheme : lightTheme,
-  );
 
   const cleanups: Array<() => void> = [];
 
@@ -293,11 +290,7 @@ export function createThemeController(
     }),
   );
 
-  cleanups.push(
-    mode.on((event) => {
-      theme.set(event.currentValue === "dark" ? darkTheme : lightTheme);
-    }),
-  );
+  const theme = derived(mode, (m) => (m === "dark" ? darkTheme : lightTheme));
 
   if (mediaQuery) {
     const handleMediaChange = (): void => {

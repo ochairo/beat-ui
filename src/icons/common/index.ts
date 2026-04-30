@@ -40,4 +40,6 @@ export {
   IconTerminal,
   IconCode,
   IconPackage,
+  IconCalendar,
+  IconClock,
 } from "./Misc";

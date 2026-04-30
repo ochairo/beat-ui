@@ -1,0 +1,106 @@
+.root {
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--beat-ui-color-background-elevated);
+  border: 1px solid var(--beat-ui-color-border);
+}
+
+.root [data-part="header"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: var(--beat-ui-color-background-subtle);
+  border-bottom: 1px solid var(--beat-ui-color-border);
+}
+
+.root [data-part="label"] {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--beat-ui-color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.root [data-part="copy-button"] {
+  border: none;
+  background: none;
+  color: var(--beat-ui-color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.root [data-part="body"] {
+  display: flex;
+  overflow-x: auto;
+}
+
+.root [data-part="editor-overlay"] {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.root [data-part="editor-overlay"] [data-part="editor-highlight"] {
+  padding: 1rem;
+  margin: 0;
+  border: none;
+  background: transparent;
+  font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  white-space: pre;
+  tab-size: 2;
+  pointer-events: none;
+}
+
+.root [data-part="editor-overlay"] [data-part="editor"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: transparent;
+  caret-color: var(--beat-ui-color-text);
+}
+
+.root [data-part="line-numbers"] {
+  padding: 1rem 0;
+  text-align: right;
+  user-select: none;
+  min-width: 2.5rem;
+  background: var(--beat-ui-color-background-elevated);
+  border-right: 1px solid var(--beat-ui-color-border);
+}
+
+.root [data-part="line-number"] {
+  padding: 0 0.75rem;
+  font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--beat-ui-color-text-muted);
+  opacity: 0.5;
+}
+
+.root [data-part="editor"] {
+  flex: 1;
+  padding: 1rem;
+  margin: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--beat-ui-color-text);
+  font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  white-space: pre;
+  tab-size: 2;
+  overflow: hidden;
+}

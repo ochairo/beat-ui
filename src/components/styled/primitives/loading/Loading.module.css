@@ -1,0 +1,28 @@
+@keyframes beat-ui-loading-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--beat-ui-color-text-muted);
+  font: inherit;
+}
+
+.root [data-part="spinner"] {
+  display: inline-block;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 999px;
+  background: var(--beat-ui-color-primary);
+  animation: beat-ui-loading-pulse 1s ease-in-out infinite;
+}

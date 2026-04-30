@@ -91,4 +91,34 @@ describe("Switch", () => {
 
     cleanup();
   });
+
+  it("renders icons inside the thumb", () => {
+    const target = document.createElement("div");
+    const checked = pulse(false);
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <Switch
+          checked={checked}
+          checkedIcon={<span class="icon-on">☀</span>}
+          uncheckedIcon={<span class="icon-off">☾</span>}
+        >
+          Theme
+        </Switch>
+      </ThemeRoot>,
+    );
+
+    const button = target.querySelector("button");
+
+    expect(button?.querySelector(".icon-off")).not.toBeNull();
+    expect(button?.querySelector(".icon-on")).toBeNull();
+
+    button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(button?.querySelector(".icon-on")).not.toBeNull();
+    expect(button?.querySelector(".icon-off")).toBeNull();
+
+    cleanup();
+  });
 });

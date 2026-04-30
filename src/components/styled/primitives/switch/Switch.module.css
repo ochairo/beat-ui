@@ -1,0 +1,45 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.125rem;
+  border: 1px solid var(--beat-ui-color-border);
+  border-radius: 999px;
+  background: var(--beat-ui-color-background-subtle);
+  color: var(--beat-ui-color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.root [data-part="track"] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 2.25rem;
+  height: 1.3rem;
+  padding: 0.025rem;
+  border-radius: 999px;
+}
+
+.root [data-part="thumb"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.root [data-part="thumb"][data-state="on"] {
+  background: var(--beat-ui-color-primary);
+  transform: translateX(0.95rem);
+}
+
+.root [data-part="thumb"][data-state="off"] {
+  background: var(--beat-ui-color-border-strong);
+  transform: translateX(0);
+}

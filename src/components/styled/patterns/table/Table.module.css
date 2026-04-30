@@ -1,0 +1,40 @@
+.root {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid var(--beat-ui-color-border);
+  border-radius: 1rem;
+  background: var(--beat-ui-color-background-elevated);
+  color: var(--beat-ui-color-text);
+}
+
+.root th {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--beat-ui-color-border);
+  background: var(--beat-ui-color-background-subtle);
+}
+
+.root th button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.root td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--beat-ui-color-border);
+  vertical-align: top;
+}
+
+.clickableRow {
+  cursor: pointer;
+}

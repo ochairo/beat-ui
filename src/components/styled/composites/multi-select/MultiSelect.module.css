@@ -1,0 +1,118 @@
+.root {
+  position: relative;
+  width: 100%;
+}
+
+.root [data-part="trigger"] {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--beat-ui-color-border);
+  background: var(--beat-ui-color-input);
+  color: var(--beat-ui-color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  outline: none;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  user-select: none;
+}
+
+.root [data-part="chevron"] {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--beat-ui-color-text-muted);
+  transition: transform 0.15s;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.root [data-part="menu"] {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: var(--beat-ui-color-background-elevated);
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  padding: 0.25rem;
+  outline: none;
+}
+
+.root [data-part="item"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  padding-left: calc(var(--depth, 0) * 1.5rem + 0.75rem);
+  border: none;
+  border-radius: 0.5rem;
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 1;
+  background: transparent;
+  color: var(--beat-ui-color-text);
+  transition:
+    background 0.1s,
+    color 0.1s;
+  outline: none;
+}
+
+.root [data-part="item"][data-highlighted="true"] {
+  background: var(--beat-ui-color-primary-soft, rgba(99, 102, 241, 0.15));
+  color: var(--beat-ui-color-primary);
+}
+
+.root [data-part="item"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.root [data-part="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--beat-ui-color-primary);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.root [data-part="search-input"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-bottom: 1px solid var(--beat-ui-color-border);
+  background: var(--beat-ui-color-background-elevated);
+  color: var(--beat-ui-color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.root [data-part="group-toggle"] {
+  cursor: pointer;
+  margin-right: 0.25rem;
+  display: inline-block;
+  font-size: 0.625rem;
+  color: var(--beat-ui-color-text-muted);
+  flex-shrink: 0;
+}

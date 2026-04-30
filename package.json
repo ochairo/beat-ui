@@ -1,6 +1,6 @@
 {
   "name": "@ochairo/beat-ui",
-  "version": "0.0.6",
+  "version": "1.5.0",
   "description": "UI component catalog and foundations for Beat applications",
   "type": "module",
   "main": "./dist/index.js",
@@ -9,19 +9,21 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./style.css": "./dist/style.css"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "dist/**/*.js",
-    "dist/**/*.js.map",
+    "dist/**/*.css",
     "dist/**/*.d.ts",
     "!dist/**/*.test.*",
     "README.md"
   ],
   "scripts": {
-    "build": "pnpm clean && tsc && pnpm build:minify",
-    "build:minify": "esbuild dist/index.js --outdir=dist --format=esm --allow-overwrite --minify --legal-comments=none --tree-shaking=true",
+    "build": "pnpm clean && vite build --config vite.config.lib.ts && tsc --emitDeclarationOnly",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -50,17 +52,18 @@
     "url": "https://github.com/ochairo/beat-ui/issues"
   },
   "dependencies": {
-    "@ochairo/beat": "^1.1.8",
-    "@ochairo/numbers": "^0.1.1",
-    "@ochairo/pulse": "^1.1.4",
-    "@ochairo/scales": "^0.1.1"
+    "@ochairo/beat": "^1.5.0",
+    "@ochairo/numbers": "^1.5.0",
+    "@ochairo/pulse": "^1.5.0",
+    "@ochairo/scales": "^1.5.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
     "esbuild": "^0.27.2",
     "happy-dom": "^20.0.7",
     "typescript": "^5.3.3",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.15",
+    "vite": "^8.0.8"
   },
   "engines": {
     "node": ">=20.0.0"

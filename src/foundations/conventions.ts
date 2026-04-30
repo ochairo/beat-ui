@@ -6,44 +6,44 @@ export type BeatUiValueChangeHandler<TValue, TEvent extends Event = Event> = (
 ) => void;
 
 export interface BeatUiAccessibilityProps {
-  readonly id?: string;
-  readonly name?: string;
-  readonly class?: string;
-  readonly disabled?: boolean;
-  readonly ariaLabel?: string;
-  readonly ariaLabelledby?: string;
-  readonly ariaDescribedby?: string;
+  readonly id?: string | undefined;
+  readonly name?: string | undefined;
+  readonly class?: string | undefined;
+  readonly disabled?: boolean | undefined;
+  readonly ariaLabel?: string | undefined;
+  readonly ariaLabelledby?: string | undefined;
+  readonly ariaDescribedby?: string | undefined;
 }
 
 export interface BeatUiFocusHandlers {
-  readonly onFocus?: (event: FocusEvent) => void;
-  readonly onBlur?: (event: FocusEvent) => void;
+  readonly onFocus?: ((event: FocusEvent) => void) | undefined;
+  readonly onBlur?: ((event: FocusEvent) => void) | undefined;
 }
 
 export interface BeatUiPressProps {
-  readonly onPress?: (event: MouseEvent) => void;
+  readonly onPress?: ((event: MouseEvent) => void) | undefined;
 }
 
 export interface BeatUiContentProps {
-  readonly children?: BeatUiRenderable;
+  readonly children?: BeatUiRenderable | undefined;
 }
 
 export interface BeatUiControlledValueProps<TValue> {
-  readonly value?: BeatUiState<TValue>;
-  readonly defaultValue?: TValue;
-  readonly onValueChange?: BeatUiValueChangeHandler<TValue>;
+  readonly value?: BeatUiState<TValue> | undefined;
+  readonly defaultValue?: TValue | undefined;
+  readonly onValueChange?: BeatUiValueChangeHandler<TValue> | undefined;
 }
 
 export interface BeatUiControlledCheckedProps {
-  readonly checked?: BeatUiState<boolean>;
-  readonly defaultChecked?: boolean;
-  readonly onCheckedChange?: BeatUiValueChangeHandler<boolean>;
+  readonly checked?: BeatUiState<boolean> | undefined;
+  readonly defaultChecked?: boolean | undefined;
+  readonly onCheckedChange?: BeatUiValueChangeHandler<boolean> | undefined;
 }
 
 export interface BeatUiControlledOpenProps {
-  readonly open?: BeatUiState<boolean>;
-  readonly defaultOpen?: boolean;
-  readonly onOpenChange?: BeatUiValueChangeHandler<boolean>;
+  readonly open?: BeatUiState<boolean> | undefined;
+  readonly defaultOpen?: boolean | undefined;
+  readonly onOpenChange?: BeatUiValueChangeHandler<boolean> | undefined;
 }
 
 export const BEAT_UI_CONVENTIONS = {
