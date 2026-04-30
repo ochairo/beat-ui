@@ -14,6 +14,7 @@ export {
 } from "./components/styled/primitives";
 
 export {
+  AppShell,
   DatePicker,
   DateInput,
   Dialog,
@@ -118,6 +119,9 @@ export type { SwitchProps } from "./components/styled/primitives";
 export type { TextAreaProps } from "./components/styled/primitives";
 
 export type {
+  AppShellNavItem,
+  AppShellProps,
+  AppShellSidebarMode,
   DatePickerProps,
   DateInputProps,
   DialogProps,

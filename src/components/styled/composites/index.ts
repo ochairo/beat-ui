@@ -1,3 +1,4 @@
+export { AppShell } from "./app-shell/AppShell";
 export { DatePicker } from "./date-picker/DatePicker";
 export { DateInput } from "./date-input/DateInput";
 export { Dialog, Modal } from "./dialog/Dialog";
@@ -12,6 +13,11 @@ export { TextInput } from "./text-input/TextInput";
 export { TimeInput } from "./time-input/TimeInput";
 export { TimePicker } from "./time-picker/TimePicker";
 
+export type {
+  AppShellNavItem,
+  AppShellProps,
+  AppShellSidebarMode,
+} from "./app-shell/AppShell";
 export type { DatePickerProps } from "./date-picker/DatePicker";
 export type { DateInputProps } from "./date-input/DateInput";
 export type { DialogProps, ModalProps } from "./dialog/Dialog";
