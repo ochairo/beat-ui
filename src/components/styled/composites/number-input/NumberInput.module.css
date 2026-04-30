@@ -1,8 +1,18 @@
 .root {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  border: 1px solid var(--beat-ui-color-border);
   border-radius: 0.875rem;
   overflow: hidden;
+  width: 100%;
+  background: var(--beat-ui-color-input);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.root[data-invalid="true"] {
+  border-color: var(--beat-ui-color-danger);
 }
 
 .root > input {
@@ -11,36 +21,20 @@
   box-sizing: border-box;
   min-height: 2.75rem;
   padding: 0.75rem 0.875rem;
-  border-radius: 0.875rem 0 0 0.875rem;
-  border: 1px solid var(--beat-ui-color-border);
-  border-right: none;
-  background: var(--beat-ui-color-input);
+  border: none;
+  background: transparent;
   color: var(--beat-ui-color-text);
   font: inherit;
   outline: none;
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.root > input[aria-invalid="true"] {
-  border-color: var(--beat-ui-color-danger);
 }
 
 .root [data-part="stepper-wrapper"] {
   display: flex;
   flex-direction: column;
   min-height: 2.75rem;
-  border-radius: 0 0.875rem 0.875rem 0;
-  border: 1px solid var(--beat-ui-color-border);
-  border-left: none;
-  background: var(--beat-ui-color-input);
+  border-left: 1px solid var(--beat-ui-color-border);
+  background: transparent;
   overflow: hidden;
-}
-
-.root [data-part="stepper-wrapper"][data-invalid="true"] {
-  border-color: var(--beat-ui-color-danger);
 }
 
 .root [data-part="step-button"] {

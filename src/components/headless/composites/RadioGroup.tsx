@@ -28,6 +28,7 @@ export interface RadioGroupProps
     BeatUiControlledValueProps<string>,
     BeatUiFocusHandlers {
   readonly options: readonly RadioGroupOption[];
+  readonly orientation?: "horizontal" | "vertical" | undefined;
   readonly styles?: RadioGroupStyles | undefined;
 }
 
@@ -48,6 +49,7 @@ export const RadioGroup = component<RadioGroupProps>((props) => {
       aria-label={props.ariaLabel}
       aria-labelledby={props.ariaLabelledby}
       aria-describedby={props.ariaDescribedby}
+      data-orientation={props.orientation ?? "vertical"}
       style={props.styles?.root}
     >
       {props.options.map((option) => {

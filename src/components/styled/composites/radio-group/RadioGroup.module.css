@@ -4,6 +4,12 @@
   gap: 0.5rem;
 }
 
+.root[data-orientation="horizontal"] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 .root > label {
   display: inline-flex;
   align-items: center;

@@ -62,7 +62,11 @@ export const NumberInput = component<NumberInputProps>((props) => {
   }
 
   return (
-    <div class={props.class} style={props.styles?.root}>
+    <div
+      class={props.class}
+      data-invalid={props.invalid}
+      style={props.styles?.root}
+    >
       <Input
         type="text"
         inputMode="decimal"
