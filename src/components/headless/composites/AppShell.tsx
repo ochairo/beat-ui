@@ -1,5 +1,5 @@
 import { component, Show } from "@ochairo/beat";
-import { pulse } from "@ochairo/pulse";
+import { derived, pulse } from "@ochairo/pulse";
 
 import type { BeatUiAccessibilityProps } from "../../../foundations";
 import type { BeatUiRenderable } from "../../../runtime";
@@ -94,24 +94,19 @@ export const AppShell = component<AppShellProps>((props) => {
         </div>
       </header>
       <div data-part="body" style={props.styles?.body}>
-        {mode === "none" ? null : mode === "fixed" ? (
+        {mode === "none" ? null : (
           <nav
             data-part="sidebar"
+            data-open={
+              mode === "fixed"
+                ? undefined
+                : derived(sidebarOpen, (v) => String(v))
+            }
             style={props.styles?.sidebar}
             aria-label={props.ariaLabel ?? "Navigation"}
           >
             {props.sidebar}
           </nav>
-        ) : (
-          <Show when={sidebarOpen}>
-            <nav
-              data-part="sidebar"
-              style={props.styles?.sidebar}
-              aria-label={props.ariaLabel ?? "Navigation"}
-            >
-              {props.sidebar}
-            </nav>
-          </Show>
         )}
         <main
           data-part="content"
