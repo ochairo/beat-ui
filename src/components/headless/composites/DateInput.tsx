@@ -228,7 +228,10 @@ export const DateInput = component<DateInputProps>((props) => {
   const initial = parseDigits(state.state.get(), slotCount);
   for (let i = 0; i < slotCount; i++) slots[i] = initial[i]!;
 
+  let syncingFromSlots = false;
+
   function syncFromSlots(event?: Event): void {
+    syncingFromSlots = true;
     const text = buildDisplay(slots, format, slotPositions);
     display.set(text);
     if (slots.every((s) => s !== null)) {
@@ -236,7 +239,18 @@ export const DateInput = component<DateInputProps>((props) => {
     } else if (slots.every((s) => s === null)) {
       state.setValue("", event);
     }
+    syncingFromSlots = false;
   }
+
+  // When the value changes externally (e.g. calendar selection), sync back to display and slots.
+  onCleanup(
+    state.state.on(({ currentValue }) => {
+      if (syncingFromSlots) return;
+      const parsed = parseDigits(currentValue, slotCount);
+      for (let i = 0; i < slotCount; i++) slots[i] = parsed[i] ?? null;
+      display.set(buildDisplay(slots, format, slotPositions));
+    }),
+  );
 
   function toggleCalendar(): void {
     if (props.disabled || props.readOnly) return;
@@ -311,6 +325,41 @@ export const DateInput = component<DateInputProps>((props) => {
       event.preventDefault();
       const slot = cursorToTypeSlot(cursor, slotPositions);
       if (slot === null) return;
+
+      const { group, groupIndex } = meta[slot]!;
+
+      // Auto-pad: if first digit of M/D would be invalid at index 0 but valid
+      // as the second digit (with "0" prepended), fill both slots at once.
+      if (
+        groupIndex === 0 &&
+        !isDigitValid(event.key, slot, slots, meta) &&
+        slot + 1 < slotPositions.length &&
+        meta[slot + 1]!.group === group
+      ) {
+        const paddedFirst = "0";
+        if (
+          isDigitValid(paddedFirst, slot, slots, meta) &&
+          isDigitValid(
+            event.key,
+            slot + 1,
+            [...slots.slice(0, slot), paddedFirst, ...slots.slice(slot + 1)],
+            meta,
+          )
+        ) {
+          slots[slot] = paddedFirst;
+          slots[slot + 1] = event.key;
+          syncFromSlots(event);
+          input.value = display.get();
+          const newCursor = cursorAfterFill(
+            slot + 1,
+            slotPositions,
+            format.length,
+          );
+          input.setSelectionRange(newCursor, newCursor);
+          return;
+        }
+      }
+
       if (!isDigitValid(event.key, slot, slots, meta)) return;
       slots[slot] = event.key;
       syncFromSlots(event);

@@ -1,6 +1,6 @@
 {
   "name": "@ochairo/beat-ui",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "description": "UI component catalog and foundations for Beat applications",
   "type": "module",
   "main": "./dist/index.js",
@@ -52,7 +52,7 @@
     "url": "https://github.com/ochairo/beat-ui/issues"
   },
   "dependencies": {
-    "@ochairo/beat": "^1.5.1",
+    "@ochairo/beat": "^1.6.0",
     "@ochairo/numbers": "^1.5.0",
     "@ochairo/pulse": "^1.5.0",
     "@ochairo/scales": "^1.5.0"

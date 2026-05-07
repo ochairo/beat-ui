@@ -37,17 +37,19 @@ export {
   IconCode,
   IconPackage,
   IconCalendar,
+  IconAim,
+  IconRoute,
+  IconCrossArrowsToRight,
+  IconPlay,
+  IconTreeChart,
   IconClock,
 } from "./common";
 
 export {
-  IconBeatReactivity,
-  IconBeatDirectDom,
-  IconBeatRouter,
-  IconBeatResource,
-  IconBeatTypeScript,
-  IconBeatRunOnce,
-  IconBeatPulse,
-  IconBeatComponent,
-  IconBeatJsx,
+  IconReact,
+  IconPulse,
+  IconVue,
+  IconAngular,
+  IconTypeScript,
+  IconJavaScript,
 } from "./other";

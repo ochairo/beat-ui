@@ -87,6 +87,12 @@
   opacity: 0.45;
 }
 
+.root [data-part="item"][data-selectable="false"] {
+  cursor: default;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .root [data-part="checkbox"] {
   width: 1rem;
   height: 1rem;

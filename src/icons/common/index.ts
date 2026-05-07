@@ -42,4 +42,9 @@ export {
   IconPackage,
   IconCalendar,
   IconClock,
+  IconAim,
+  IconRoute,
+  IconCrossArrowsToRight,
+  IconPlay,
+  IconTreeChart,
 } from "./Misc";

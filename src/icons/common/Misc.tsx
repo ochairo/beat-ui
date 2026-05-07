@@ -186,3 +186,131 @@ export const IconClock = component<IconProps>((props) => {
     </svg>
   );
 });
+
+/** Crosshair with solid center. */
+export const IconAim = component<IconProps>((props) => {
+  const s = getIconStyle(props);
+  const c = getIconColor(props);
+  return (
+    <svg
+      class={props.class}
+      style={s}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-label={props.ariaLabel ?? "Aim"}
+      aria-hidden={props.ariaHidden ?? !props.ariaLabel}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="4" fill={c} />
+      <line x1="12" y1="2" x2="12" y2="8" />
+      <line x1="12" y1="16" x2="12" y2="22" />
+      <line x1="2" y1="12" x2="8" y2="12" />
+      <line x1="16" y1="12" x2="22" y2="12" />
+    </svg>
+  );
+});
+
+/** Direction signpost. */
+export const IconRoute = component<IconProps>((props) => {
+  const s = getIconStyle(props);
+  const c = getIconColor(props);
+  return (
+    <svg
+      class={props.class}
+      style={s}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-label={props.ariaLabel ?? "Route"}
+      aria-hidden={props.ariaHidden ?? !props.ariaLabel}
+    >
+      <line x1="12" y1="3" x2="12" y2="22" />
+      <polygon points="5 5 19 5 21 8 5 8" />
+      <polygon points="19 12 5 12 3 15 19 15" />
+    </svg>
+  );
+});
+
+/** Cross arrows. */
+export const IconCrossArrowsToRight = component<IconProps>((props) => {
+  const s = getIconStyle(props);
+  const c = getIconColor(props);
+  return (
+    <svg
+      class={props.class}
+      style={s}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-label={props.ariaLabel ?? "Cross Arrows"}
+      aria-hidden={props.ariaHidden ?? !props.ariaLabel}
+    >
+      <polyline points="16 3 21 3 21 8" />
+      <line x1="4" y1="20" x2="21" y2="3" />
+      <polyline points="21 16 21 21 16 21" />
+      <line x1="15" y1="15" x2="21" y2="21" />
+      <line x1="4" y1="4" x2="9" y2="9" />
+    </svg>
+  );
+});
+
+/** Tree chart — component hierarchy. */
+export const IconTreeChart = component<IconProps>((props) => {
+  const s = getIconStyle(props);
+  const c = getIconColor(props);
+  return (
+    <svg
+      class={props.class}
+      style={s}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-label={props.ariaLabel ?? "Tree Chart"}
+      aria-hidden={props.ariaHidden ?? !props.ariaLabel}
+    >
+      <rect x="8" y="2" width="8" height="6" rx="1" />
+      <rect x="2" y="16" width="8" height="6" rx="1" />
+      <rect x="14" y="16" width="8" height="6" rx="1" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="6" y1="16" x2="6" y2="12" />
+      <line x1="18" y1="16" x2="18" y2="12" />
+      <line x1="6" y1="12" x2="18" y2="12" />
+    </svg>
+  );
+});
+
+/** Play triangle. */
+export const IconPlay = component<IconProps>((props) => {
+  const s = getIconStyle(props);
+  const c = getIconColor(props);
+  return (
+    <svg
+      class={props.class}
+      style={s}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-label={props.ariaLabel ?? "Play"}
+      aria-hidden={props.ariaHidden ?? !props.ariaLabel}
+    >
+      <polygon points="5 3 19 12 5 21 5 3" fill={c} opacity="0.15" />
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+  );
+});

@@ -1,5 +1,5 @@
-import { For, component } from "@ochairo/beat";
-import { pulse } from "@ochairo/pulse";
+import { For, component, onCleanup } from "@ochairo/beat";
+import { derived, pulse } from "@ochairo/pulse";
 
 import {
   createControllableState,
@@ -111,6 +111,17 @@ export const DatePicker = component<DatePickerProps>((props) => {
     days.set(getCalendarDays(viewYear.get(), viewMonth.get()));
   }
 
+  onCleanup(
+    state.state.on(({ currentValue }) => {
+      const parsed = parseDate(currentValue);
+      if (parsed) {
+        viewYear.set(parsed.getFullYear());
+        viewMonth.set(parsed.getMonth());
+        updateView();
+      }
+    }),
+  );
+
   const todayStr = formatDate(now);
 
   function prevMonth(): void {
@@ -193,6 +204,7 @@ export const DatePicker = component<DatePickerProps>((props) => {
             const dateStr = formatDate(cell.date);
             const isToday = dateStr === todayStr;
             const isSelected = dateStr === state.state.get();
+            const dayNumber = derived(cellPulse, (c) => c.day);
             return (
               <button
                 type="button"
@@ -203,24 +215,40 @@ export const DatePicker = component<DatePickerProps>((props) => {
                 aria-current={isToday ? "date" : undefined}
                 style={props.styles?.day?.(isSelected, isToday, cell.outside)}
                 ref={(el) => {
-                  state.state.on(() => {
-                    const sel = formatDate(cell.date) === state.state.get();
+                  function update(): void {
+                    const c = cellPulse.get();
+                    const sel = formatDate(c.date) === state.state.get();
+                    const today = formatDate(c.date) === todayStr;
                     (el as HTMLButtonElement).setAttribute(
                       "aria-selected",
                       String(sel),
                     );
+                    (el as HTMLButtonElement).setAttribute(
+                      "data-outside",
+                      String(c.outside),
+                    );
+                    if (today) {
+                      (el as HTMLButtonElement).setAttribute(
+                        "aria-current",
+                        "date",
+                      );
+                    } else {
+                      (el as HTMLButtonElement).removeAttribute("aria-current");
+                    }
                     if (props.styles?.day) {
                       (el as HTMLElement).style.cssText = props.styles.day(
                         sel,
-                        isToday,
-                        cell.outside,
+                        today,
+                        c.outside,
                       );
                     }
-                  });
+                  }
+                  state.state.on(update);
+                  cellPulse.on(update);
                 }}
-                onClick={() => selectDay(cell)}
+                onClick={() => selectDay(cellPulse.get())}
               >
-                {cell.day}
+                {dayNumber}
               </button>
             );
           }}

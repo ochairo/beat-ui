@@ -58,8 +58,9 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--beat-ui-color-muted);
+  color: var(--beat-ui-color-text-muted);
   cursor: pointer;
+  outline: none;
   transition: color 160ms ease;
 }
 

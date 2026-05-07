@@ -1,13 +1,18 @@
 export {
+  AreaChart,
   Badge,
+  BarChart,
   Button,
   Card,
   CheckBox,
   Checkbox,
   CodeBlock,
   Input,
+  LineChart,
   Loading,
+  PieChart,
   RadioButton,
+  ScatterPlot,
   Sparkline,
   Switch,
   TextArea,
@@ -70,17 +75,19 @@ export {
   IconTerminal,
   IconCode,
   IconPackage,
+  IconAim,
+  IconRoute,
+  IconCrossArrowsToRight,
+  IconPlay,
+  IconTreeChart,
   IconCalendar,
   IconClock,
-  IconBeatReactivity,
-  IconBeatDirectDom,
-  IconBeatRouter,
-  IconBeatResource,
-  IconBeatTypeScript,
-  IconBeatRunOnce,
-  IconBeatPulse,
-  IconBeatComponent,
-  IconBeatJsx,
+  IconReact,
+  IconPulse,
+  IconVue,
+  IconAngular,
+  IconTypeScript,
+  IconJavaScript,
   DEFAULT_ICON_SIZE,
   DEFAULT_ICON_COLOR,
 } from "./icons";
@@ -115,6 +122,27 @@ export type { InputProps } from "./components/styled/primitives";
 export type { LoadingProps } from "./components/styled/primitives";
 export type { RadioButtonProps } from "./components/styled/primitives";
 export type { SparklineProps } from "./components/styled/primitives";
+export type {
+  AreaChartProps,
+  AreaChartSeries,
+} from "./components/styled/primitives";
+export type {
+  BarChartProps,
+  BarChartSeries,
+} from "./components/styled/primitives";
+export type {
+  LineChartProps,
+  LineChartSeries,
+} from "./components/styled/primitives";
+export type {
+  PieChartProps,
+  PieChartSlice,
+} from "./components/styled/primitives";
+export type {
+  ScatterPlotProps,
+  ScatterPlotSeries,
+  ScatterPlotPoint,
+} from "./components/styled/primitives";
 export type { SwitchProps } from "./components/styled/primitives";
 export type { TextAreaProps } from "./components/styled/primitives";
 

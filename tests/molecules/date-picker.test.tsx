@@ -111,4 +111,49 @@ describe("DatePicker", () => {
 
     cleanup();
   });
+
+  it("updates the calendar view when the controlled value changes", () => {
+    const target = document.createElement("div");
+    const value = pulse("2025-01-10");
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DatePicker value={value} />
+      </ThemeRoot>,
+    );
+
+    const titleEl = target.querySelector("span");
+    expect(titleEl?.textContent).toBe("January 2025");
+
+    value.set("2025-06-20");
+
+    expect(titleEl?.textContent).toBe("June 2025");
+
+    cleanup();
+  });
+
+  it("updates aria-selected when controlled value changes within same month", () => {
+    const target = document.createElement("div");
+    const value = pulse("2025-06-10");
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DatePicker value={value} />
+      </ThemeRoot>,
+    );
+
+    const getSelected = (): string | null | undefined =>
+      target.querySelector("button[role='gridcell'][aria-selected='true']")
+        ?.textContent;
+
+    expect(getSelected()).toBe("10");
+
+    value.set("2025-06-20");
+
+    expect(getSelected()).toBe("20");
+
+    cleanup();
+  });
 });

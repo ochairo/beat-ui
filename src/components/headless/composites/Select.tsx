@@ -127,10 +127,8 @@ const SelectItem = component<SelectItemProps>((props) => {
           props.highlightedIndex.set(-1);
       }}
       onClick={() => {
-        const isSelectable = option.isSelectable ?? !props.hasChildren;
+        const isSelectable = option.isSelectable ?? true;
         if (!option.disabled && isSelectable) props.onSelect(option.value);
-        if (props.hasChildren && !isSelectable)
-          props.onToggleExpand(option.value);
       }}
     >
       {props.hasChildren ? (
@@ -380,9 +378,8 @@ export const Select = component<SelectProps>((props) => {
       e.preventDefault();
       const flat = opts[hi];
       if (flat && !flat.option.disabled) {
-        const isSelectable = flat.option.isSelectable ?? !flat.hasChildren;
+        const isSelectable = flat.option.isSelectable ?? true;
         if (isSelectable) selectOption(flat.option.value);
-        else if (flat.hasChildren) toggleExpand(flat.option.value);
       }
       return;
     }

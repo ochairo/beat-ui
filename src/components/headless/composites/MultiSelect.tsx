@@ -31,6 +31,7 @@ interface FlatMultiSelectOption {
   readonly option: MultiSelectOption;
   readonly depth: number;
   readonly hasChildren: boolean;
+  readonly parentValue?: string | undefined;
 }
 
 export interface MultiSelectProps
@@ -39,7 +40,12 @@ export interface MultiSelectProps
     BeatUiControlledValueProps<readonly string[]>,
     BeatUiFocusHandlers {
   readonly canSearch?: boolean | undefined;
+  readonly cascadeSelect?: boolean | undefined;
   readonly class?: string | undefined;
+  readonly onParentToggle?: (
+    option: MultiSelectOption,
+    current: readonly string[],
+  ) => readonly string[];
   readonly options: readonly MultiSelectOption[];
   readonly placeholder?: string | undefined;
   readonly styles?: MultiSelectStyles | undefined;
@@ -51,6 +57,7 @@ interface MultiSelectItemProps {
   readonly depth: number;
   readonly hasChildren: boolean;
   readonly expanded: boolean;
+  readonly parentValue?: string | undefined;
   readonly selectedValues: Pulse<readonly string[]>;
   readonly highlightedIndex: Pulse<number>;
   readonly onToggle: (value: string) => void;
@@ -61,6 +68,7 @@ interface MultiSelectItemProps {
   readonly checkboxStyle?: string | undefined;
   readonly groupToggleStyle?: string | undefined;
   readonly indentStyle?: string | undefined;
+  readonly cascadeSelect?: boolean | undefined;
 }
 
 const MultiSelectItem = component<MultiSelectItemProps>((props) => {
@@ -72,6 +80,20 @@ const MultiSelectItem = component<MultiSelectItemProps>((props) => {
 
   function isChecked(): boolean {
     return props.selectedValues.get().includes(option.value);
+  }
+
+  function isParentSelected(): boolean {
+    return (
+      props.parentValue !== undefined &&
+      props.selectedValues.get().includes(props.parentValue)
+    );
+  }
+
+  function isEffectivelySelectable(): boolean {
+    return (
+      (option.isSelectable ?? true) &&
+      !(props.cascadeSelect && isParentSelected())
+    );
   }
 
   function getInlineStyle(): string {
@@ -88,6 +110,7 @@ const MultiSelectItem = component<MultiSelectItemProps>((props) => {
       type="button"
       data-part="item"
       data-highlighted={isHighlighted() || isChecked()}
+      data-selectable={isEffectivelySelectable() ? "true" : "false"}
       disabled={option.disabled}
       aria-selected={isChecked()}
       style={getInlineStyle()}
@@ -96,6 +119,7 @@ const MultiSelectItem = component<MultiSelectItemProps>((props) => {
           props.selectedValues.on(() => {
             const btn = el as HTMLElement;
             btn.dataset["highlighted"] = String(isHighlighted() || isChecked());
+            btn.dataset["selectable"] = String(isEffectivelySelectable());
             if (props.itemStyle) {
               const indent = depth > 0 ? `margin-left:${depth * 2}rem;` : "";
               btn.style.cssText = `${props.itemStyle(isHighlighted() || isChecked(), option.disabled ?? false)}${indent}`;
@@ -124,10 +148,8 @@ const MultiSelectItem = component<MultiSelectItemProps>((props) => {
           props.highlightedIndex.set(-1);
       }}
       onClick={() => {
-        const isSelectable = option.isSelectable ?? !props.hasChildren;
-        if (!option.disabled && isSelectable) props.onToggle(option.value);
-        if (props.hasChildren && !isSelectable)
-          props.onToggleExpand(option.value);
+        if (!option.disabled && isEffectivelySelectable())
+          props.onToggle(option.value);
       }}
     >
       {props.hasChildren ? (
@@ -178,13 +200,16 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
   function flattenOptions(
     options: readonly MultiSelectOption[],
     depth: number,
+    parentValue?: string,
   ): readonly FlatMultiSelectOption[] {
     const result: FlatMultiSelectOption[] = [];
     for (const option of options) {
       const hasChildren = (option.children?.length ?? 0) > 0;
-      result.push({ option, depth, hasChildren });
+      result.push({ option, depth, hasChildren, parentValue });
       if (hasChildren && expandedKeys.get().includes(option.value)) {
-        result.push(...flattenOptions(option.children!, depth + 1));
+        result.push(
+          ...flattenOptions(option.children!, depth + 1, option.value),
+        );
       }
     }
     return result;
@@ -272,6 +297,7 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
         depth: flat.depth,
         hasChildren: flat.hasChildren,
         expanded: expandedKeys.get().includes(flat.option.value),
+        parentValue: flat.parentValue,
         selectedValues: state.state,
         highlightedIndex,
         onToggle: toggleOption,
@@ -280,6 +306,7 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
         checkboxStyle: props.styles?.checkbox,
         groupToggleStyle: props.styles?.groupToggle,
         indentStyle: props.styles?.indent,
+        cascadeSelect: props.cascadeSelect,
       });
       if (
         rendered !== null &&
@@ -327,8 +354,52 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
     triggerEl?.focus();
   }
 
+  function collectDescendantValues(
+    option: MultiSelectOption,
+  ): readonly string[] {
+    if (!option.children?.length) return [];
+    const result: string[] = [];
+    for (const child of option.children) {
+      if (!child.disabled) result.push(child.value);
+      result.push(...collectDescendantValues(child));
+    }
+    return result;
+  }
+
+  function findOption(
+    value: string,
+    options: readonly MultiSelectOption[],
+  ): MultiSelectOption | undefined {
+    for (const o of options) {
+      if (o.value === value) return o;
+      if (o.children) {
+        const found = findOption(value, o.children);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  }
+
   function toggleOption(value: string): void {
     const current = state.state.get();
+    const option = findOption(value, props.options);
+    const hasChildren = (option?.children?.length ?? 0) > 0;
+
+    if (props.onParentToggle && hasChildren && option) {
+      state.setValue(props.onParentToggle(option, current));
+      return;
+    }
+
+    if (props.cascadeSelect && hasChildren && option) {
+      const descendants = collectDescendantValues(option);
+      const isRemoving = current.includes(value);
+      const next = isRemoving
+        ? current.filter((v) => v !== value && !descendants.includes(v))
+        : [...new Set([...current, value, ...descendants])];
+      state.setValue(next);
+      return;
+    }
+
     const next = current.includes(value)
       ? current.filter((v) => v !== value)
       : [...current, value];
@@ -385,9 +456,8 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
       e.preventDefault();
       const flat = opts[hi];
       if (flat && !flat.option.disabled) {
-        const isSelectable = flat.option.isSelectable ?? !flat.hasChildren;
+        const isSelectable = flat.option.isSelectable ?? true;
         if (isSelectable) toggleOption(flat.option.value);
-        else if (flat.hasChildren) toggleExpand(flat.option.value);
       }
       return;
     }

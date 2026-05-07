@@ -1,4 +1,4 @@
-import { For, component } from "@ochairo/beat";
+import { For, component, onCleanup } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 
 import {
@@ -17,14 +17,19 @@ export interface TimePickerStyles {
 
 export interface TimePickerProps
   extends BeatUiAccessibilityProps, BeatUiControlledValueProps<string> {
+  readonly disabledHours?: readonly string[] | undefined;
+  readonly disabledMinutes?: readonly string[] | undefined;
+  readonly maxHour?: number;
   readonly minuteStep?: number;
   readonly styles?: TimePickerStyles;
 }
 
-function buildHours(): readonly string[] {
+function buildHours(maxHour: number | undefined): readonly string[] {
+  const max = maxHour ?? 24;
+  const digits = Math.max(2, String(max).length);
   const result: string[] = [];
-  for (let h = 0; h < 24; h++) {
-    result.push(String(h).padStart(2, "0"));
+  for (let h = 0; h <= max; h++) {
+    result.push(String(h).padStart(digits, "0"));
   }
   return result;
 }
@@ -55,16 +60,27 @@ export const TimePicker = component<TimePickerProps>((props) => {
   });
 
   const step = props.minuteStep ?? 5;
-  const hours = pulse(buildHours());
+  const hours = pulse(buildHours(props.maxHour));
   const minutes = pulse(buildMinutes(step));
 
   const parsed = parseTime(state.state.get());
   const selectedHour = pulse(parsed.hour);
   const selectedMinute = pulse(parsed.minute);
 
+  onCleanup(
+    state.state.on(({ currentValue }) => {
+      const p = parseTime(currentValue);
+      if (p.hour) selectedHour.set(p.hour);
+      if (p.minute) selectedMinute.set(p.minute);
+    }),
+  );
+
   function selectHour(h: string): void {
     selectedHour.set(h);
-    const m = selectedMinute.get() || "00";
+    // 24:00 end-of-day: only valid when maxHour is not set (default behavior)
+    const forceZeroMin = props.maxHour === undefined && h === "24";
+    const m = forceZeroMin ? "00" : selectedMinute.get() || "00";
+    selectedMinute.set(m);
     state.setValue(`${h}:${m}`);
   }
 
@@ -91,12 +107,14 @@ export const TimePicker = component<TimePickerProps>((props) => {
             {(hPulse) => {
               const h = hPulse.get();
               const isSelected = h === selectedHour.get();
+              const isDisabled = props.disabledHours?.includes(h) ?? false;
               return (
                 <button
                   type="button"
                   data-part="option"
                   role="option"
                   aria-selected={isSelected ? "true" : "false"}
+                  disabled={isDisabled}
                   style={props.styles?.option?.(isSelected)}
                   ref={(el) => {
                     selectedHour.on(({ currentValue }) => {
@@ -105,6 +123,11 @@ export const TimePicker = component<TimePickerProps>((props) => {
                         "aria-selected",
                         String(sel),
                       );
+                      if (sel) {
+                        (el as HTMLElement).scrollIntoView({
+                          block: "nearest",
+                        });
+                      }
                       if (props.styles?.option) {
                         (el as HTMLElement).style.cssText =
                           props.styles.option(sel);
@@ -127,12 +150,20 @@ export const TimePicker = component<TimePickerProps>((props) => {
             {(mPulse) => {
               const m = mPulse.get();
               const isSelected = m === selectedMinute.get();
+              const isDisabledByProp =
+                props.disabledMinutes?.includes(m) ?? false;
+              const isDisabled =
+                isDisabledByProp ||
+                (props.maxHour === undefined &&
+                  selectedHour.get() === "24" &&
+                  m !== "00");
               return (
                 <button
                   type="button"
                   data-part="option"
                   role="option"
                   aria-selected={isSelected ? "true" : "false"}
+                  disabled={isDisabled}
                   style={props.styles?.option?.(isSelected)}
                   ref={(el) => {
                     selectedMinute.on(({ currentValue }) => {
@@ -141,10 +172,23 @@ export const TimePicker = component<TimePickerProps>((props) => {
                         "aria-selected",
                         String(sel),
                       );
+                      if (sel) {
+                        (el as HTMLElement).scrollIntoView({
+                          block: "nearest",
+                        });
+                      }
                       if (props.styles?.option) {
                         (el as HTMLElement).style.cssText =
                           props.styles.option(sel);
                       }
+                    });
+                    selectedHour.on(({ currentValue }) => {
+                      const dis =
+                        isDisabledByProp ||
+                        (props.maxHour === undefined &&
+                          currentValue === "24" &&
+                          m !== "00");
+                      (el as HTMLButtonElement).disabled = dis;
                     });
                   }}
                   onClick={() => selectMinute(m)}

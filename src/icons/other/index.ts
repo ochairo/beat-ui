@@ -1,11 +1,9 @@
 export {
-  IconBeatReactivity,
-  IconBeatDirectDom,
-  IconBeatRouter,
-  IconBeatResource,
-  IconBeatTypeScript,
-  IconBeatRunOnce,
-  IconBeatPulse,
-  IconBeatComponent,
-  IconBeatJsx,
-} from "./Beat";
+  IconReact,
+  IconPulse,
+  IconCode,
+  IconVue,
+  IconAngular,
+  IconTypeScript,
+  IconJavaScript,
+} from "./Other";
