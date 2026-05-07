@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@ochairo/beat':
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       '@ochairo/numbers':
         specifier: ^1.5.0
         version: 1.5.0
@@ -216,8 +216,8 @@ packages:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
 
-  '@ochairo/beat@1.5.1':
-    resolution: {integrity: sha512-7Bsgm9gdWQe44LaDdFzsKb9YuymgBCIbbw7033oXSTpWs5aUUNxvCvI416A4JH4gU1YtT3ACnMaKl5HJK7KDIw==}
+  '@ochairo/beat@1.6.0':
+    resolution: {integrity: sha512-S4F7+9wayXX+JFaQfThWF2Nun2n7LP9DcWOwtT8+PRQjl8TABbjh7+EPRPIABt+85ePaaziTx0acRyQPnSrxpA==}
     engines: {node: '>=20.0.0'}
 
   '@ochairo/numbers@1.5.0':
@@ -780,7 +780,7 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@ochairo/beat@1.5.1':
+  '@ochairo/beat@1.6.0':
     dependencies:
       '@ochairo/pulse': 1.5.0
 
