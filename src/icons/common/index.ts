@@ -46,5 +46,6 @@ export {
   IconRoute,
   IconCrossArrowsToRight,
   IconPlay,
+  IconPause,
   IconTreeChart,
 } from "./Misc";

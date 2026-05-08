@@ -41,6 +41,7 @@ export {
   IconRoute,
   IconCrossArrowsToRight,
   IconPlay,
+  IconPause,
   IconTreeChart,
   IconClock,
 } from "./common";

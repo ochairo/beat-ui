@@ -314,3 +314,27 @@ export const IconPlay = component<IconProps>((props) => {
     </svg>
   );
 });
+
+export const IconPause = component<IconProps>((props) => {
+  const s = getIconStyle(props);
+  const c = getIconColor(props);
+  return (
+    <svg
+      class={props.class}
+      style={s}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={c}
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-label={props.ariaLabel ?? "Pause"}
+      aria-hidden={props.ariaHidden ?? !props.ariaLabel}
+    >
+      <rect x="6" y="4" width="4" height="16" fill={c} opacity="0.15" />
+      <rect x="6" y="4" width="4" height="16" />
+      <rect x="14" y="4" width="4" height="16" fill={c} opacity="0.15" />
+      <rect x="14" y="4" width="4" height="16" />
+    </svg>
+  );
+});

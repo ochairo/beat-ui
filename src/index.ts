@@ -14,6 +14,7 @@ export {
   RadioButton,
   ScatterPlot,
   Sparkline,
+  Slider,
   Switch,
   TextArea,
 } from "./components/styled/primitives";
@@ -80,6 +81,7 @@ export {
   IconRoute,
   IconCrossArrowsToRight,
   IconPlay,
+  IconPause,
   IconTreeChart,
   IconCalendar,
   IconClock,
@@ -144,6 +146,7 @@ export type {
   ScatterPlotSeries,
   ScatterPlotPoint,
 } from "./components/styled/primitives";
+export type { SliderProps } from "./components/styled/primitives";
 export type { SwitchProps } from "./components/styled/primitives";
 export type { TextAreaProps } from "./components/styled/primitives";
 

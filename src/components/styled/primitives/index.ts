@@ -12,6 +12,7 @@ export { PieChart } from "./pie-chart/PieChart";
 export { RadioButton } from "./radio-button/RadioButton";
 export { ScatterPlot } from "./scatter-plot/ScatterPlot";
 export { Sparkline } from "./sparkline/Sparkline";
+export { Slider } from "./slider/Slider";
 export { Switch } from "./switch/Switch";
 export { TextArea } from "./text-area/TextArea";
 
@@ -33,5 +34,6 @@ export type {
   ScatterPlotPoint,
 } from "./scatter-plot/ScatterPlot";
 export type { SparklineProps } from "./sparkline/Sparkline";
+export type { SliderProps } from "./slider/Slider";
 export type { SwitchProps } from "./switch/Switch";
 export type { TextAreaProps } from "./text-area/TextArea";
