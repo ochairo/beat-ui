@@ -1,5 +1,4 @@
-import { Show, component, onCleanup } from "@ochairo/beat";
-import { derived } from "@ochairo/pulse";
+import { component, onCleanup } from "@ochairo/beat";
 
 import {
   createControllableState,
@@ -162,7 +161,6 @@ export const Tab = component<TabProps>((props) => {
       </div>
       <div data-part="panel" style={props.styles?.panel}>
         {props.items.map((item) => {
-          const isActive = derived(state.state, (key) => key === item.key);
           return (
             <div
               role="tabpanel"
@@ -178,7 +176,7 @@ export const Tab = component<TabProps>((props) => {
                 );
               }}
             >
-              <Show when={isActive}>{() => item.content}</Show>
+              {item.content}
             </div>
           );
         })}

@@ -19,16 +19,17 @@ describe("Tab", () => {
     );
 
     const buttons = Array.from(target.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(target.querySelectorAll('[role="tabpanel"]'));
 
-    expect(target.textContent).toContain("First panel");
-    expect(target.textContent).not.toContain("Second panel");
+    expect(panels[0]?.hidden).toBe(false);
+    expect(panels[1]?.hidden).toBe(true);
 
     buttons[1]?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(buttons[0]?.getAttribute("aria-selected")).toBe("false");
     expect(buttons[1]?.getAttribute("aria-selected")).toBe("true");
-    expect(target.textContent).not.toContain("First panel");
-    expect(target.textContent).toContain("Second panel");
+    expect(panels[0]?.hidden).toBe(true);
+    expect(panels[1]?.hidden).toBe(false);
 
     cleanup();
   });
@@ -76,6 +77,7 @@ describe("Tab", () => {
     );
 
     const buttons = Array.from(target.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(target.querySelectorAll('[role="tabpanel"]'));
 
     expect(buttons[0]?.getAttribute("aria-selected")).toBe("true");
 
@@ -83,8 +85,8 @@ describe("Tab", () => {
 
     expect(buttons[0]?.getAttribute("aria-selected")).toBe("true");
     expect(buttons[1]?.getAttribute("aria-selected")).toBe("false");
-    expect(target.textContent).toContain("First panel");
-    expect(target.textContent).not.toContain("Second panel");
+    expect(panels[0]?.hidden).toBe(false);
+    expect(panels[1]?.hidden).toBe(true);
 
     cleanup();
   });
