@@ -26,7 +26,7 @@ export interface DatePickerProps
   readonly styles?: DatePickerStyles;
 }
 
-const WEEKDAYS = pulse(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
+const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
 
 interface DayCell {
   readonly date: Date;
@@ -187,17 +187,15 @@ export const DatePicker = component<DatePickerProps>((props) => {
         </button>
       </div>
       <div data-part="grid" role="grid" style={props.styles?.grid}>
-        <For each={WEEKDAYS}>
-          {(day) => (
-            <span
-              data-part="weekday"
-              role="columnheader"
-              style={props.styles?.weekday}
-            >
-              {day}
-            </span>
-          )}
-        </For>
+        {WEEKDAYS.map((day) => (
+          <span
+            data-part="weekday"
+            role="columnheader"
+            style={props.styles?.weekday}
+          >
+            {day}
+          </span>
+        ))}
         <For each={days}>
           {(cellPulse) => {
             const cell = cellPulse.get();

@@ -1,4 +1,5 @@
 import { Show, component, onCleanup } from "@ochairo/beat";
+import { derived } from "@ochairo/pulse";
 
 import {
   createControllableState,
@@ -159,28 +160,28 @@ export const Tab = component<TabProps>((props) => {
           </button>
         ))}
       </div>
-      <div
-        data-part="panel"
-        role="tabpanel"
-        style={props.styles?.panel}
-        ref={(el) => {
-          const panel = el as HTMLElement;
-          const update = (key: string): void => {
-            panel.id = `tabpanel-${key}`;
-            panel.setAttribute("aria-labelledby", `tab-${key}`);
-          };
-          update(state.state.get());
-          onCleanup(state.state.on(({ currentValue }) => update(currentValue)));
-        }}
-      >
-        {props.items.map((item) => (
-          <Show
-            when={state.state}
-            mapValue={(activeKey) => activeKey === item.key}
-          >
-            {item.content}
-          </Show>
-        ))}
+      <div data-part="panel" style={props.styles?.panel}>
+        {props.items.map((item) => {
+          const isActive = derived(state.state, (key) => key === item.key);
+          return (
+            <div
+              role="tabpanel"
+              id={`tabpanel-${item.key}`}
+              aria-labelledby={`tab-${item.key}`}
+              ref={(el) => {
+                const panel = el as HTMLElement;
+                panel.hidden = state.state.get() !== item.key;
+                onCleanup(
+                  state.state.on(({ currentValue }) => {
+                    panel.hidden = currentValue !== item.key;
+                  }),
+                );
+              }}
+            >
+              <Show when={isActive}>{() => item.content}</Show>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

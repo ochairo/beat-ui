@@ -7,6 +7,7 @@ export { MultiSelect } from "./multi-select/MultiSelect";
 export { Notification } from "./notification/Notification";
 export { NumberInput } from "./number-input/NumberInput";
 export { RadioGroup } from "./radio-group/RadioGroup";
+export { SearchInput } from "./search-input/SearchInput";
 export { SideMenu } from "./side-menu/SideMenu";
 export { Tab } from "./tab/Tab";
 export { TextInput } from "./text-input/TextInput";
@@ -41,6 +42,7 @@ export type {
   RadioGroupOption,
   RadioGroupProps,
 } from "./radio-group/RadioGroup";
+export type { SearchInputProps } from "./search-input/SearchInput";
 export type { SideMenuItem, SideMenuProps } from "./side-menu/SideMenu";
 export type { TabItem, TabOrientation, TabProps } from "./tab/Tab";
 export type { TextInputProps } from "./text-input/TextInput";

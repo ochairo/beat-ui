@@ -1,0 +1,45 @@
+.root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.icon {
+  position: absolute;
+  left: 0.875rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: var(--beat-ui-color-text-muted);
+  z-index: 1;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 2.75rem;
+  padding: 0 0.875rem 0 2.25rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--beat-ui-color-border);
+  background: var(--beat-ui-color-input);
+  color: var(--beat-ui-color-text);
+  font: inherit;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.input:focus {
+  border-color: var(--beat-ui-color-primary);
+}
+
+/* Remove browser default search field clear button */
+.input::-webkit-search-decoration,
+.input::-webkit-search-cancel-button,
+.input::-webkit-search-results-button,
+.input::-webkit-search-results-decoration {
+  display: none;
+}
