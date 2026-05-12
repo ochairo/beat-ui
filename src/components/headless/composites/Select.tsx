@@ -7,6 +7,7 @@ import {
   type BeatUiControlledValueProps,
   type BeatUiFocusHandlers,
 } from "../../../foundations";
+import type { BeatUiReadonlyState } from "../../../runtime";
 import {
   isWithinFloatingLayer,
   measureFloatingLayerHeight,
@@ -42,6 +43,17 @@ interface FlatSelectOption {
   readonly hasChildren: boolean;
 }
 
+function isSelectOptionState(
+  options:
+    | BeatUiReadonlyState<readonly SelectOption[]>
+    | readonly SelectOption[],
+): options is BeatUiReadonlyState<readonly SelectOption[]> {
+  return (
+    typeof (options as BeatUiReadonlyState<readonly SelectOption[]>).get ===
+    "function"
+  );
+}
+
 export interface SelectProps
   extends
     BeatUiAccessibilityProps,
@@ -49,9 +61,12 @@ export interface SelectProps
     BeatUiFocusHandlers {
   readonly canSearch?: boolean | undefined;
   readonly class?: string | undefined;
-  readonly options: readonly SelectOption[];
+  readonly options:
+    | BeatUiReadonlyState<readonly SelectOption[]>
+    | readonly SelectOption[];
   readonly placeholder?: string;
   readonly styles?: SelectStyles;
+  readonly useFloatingLayer?: boolean | undefined;
 }
 
 /** @deprecated Use SelectProps */
@@ -183,6 +198,12 @@ export const HlSelect = component<SelectProps>((props) => {
   let cleanupDropdownMount: (() => void) | null = null;
   let cleanupDropdownTracking: (() => void) | null = null;
 
+  function resolvedOptions(): readonly SelectOption[] {
+    return isSelectOptionState(props.options)
+      ? props.options.get()
+      : props.options;
+  }
+
   function updateDropdownPosition(): void {
     if (!triggerEl || !dropdownEl) return;
     positionFloatingLayer({
@@ -252,21 +273,29 @@ export const HlSelect = component<SelectProps>((props) => {
   }
 
   function currentOption(): SelectOption | undefined {
-    return allOptionsFlat(props.options).find(
+    return allOptionsFlat(resolvedOptions()).find(
       (option) => option.value === state.state.get(),
     );
   }
 
   const triggerLabel = pulse(currentLabel());
   onCleanup(state.state.on(() => triggerLabel.set(currentLabel())));
+  if (isSelectOptionState(props.options)) {
+    onCleanup(
+      props.options.on(() => {
+        triggerLabel.set(currentLabel());
+        renderItems();
+      }),
+    );
+  }
 
   const searchQuery = pulse("");
 
   function filteredOptions(): readonly FlatSelectOption[] {
-    if (!props.canSearch) return flattenOptions(props.options, 0);
+    if (!props.canSearch) return flattenOptions(resolvedOptions(), 0);
     const q = searchQuery.get().toLowerCase();
-    if (q === "") return flattenOptions(props.options, 0);
-    return flattenFiltered(props.options, q, 0);
+    if (q === "") return flattenOptions(resolvedOptions(), 0);
+    return flattenFiltered(resolvedOptions(), q, 0);
   }
 
   function hasMatchInTree(
@@ -337,6 +366,10 @@ export const HlSelect = component<SelectProps>((props) => {
       }
     }
     if (isOpen.get()) {
+      if (props.useFloatingLayer === false) {
+        return;
+      }
+
       queueMicrotask(() => {
         if (isOpen.get()) updateDropdownPosition();
       });
@@ -531,6 +564,11 @@ export const HlSelect = component<SelectProps>((props) => {
             ref={(el) => {
               const htmlEl = el as HTMLDivElement;
               dropdownEl = htmlEl;
+
+              if (props.useFloatingLayer === false) {
+                return;
+              }
+
               if (htmlEl.style.zIndex === "") {
                 htmlEl.style.zIndex = resolveFloatingLayerZIndex(triggerEl);
               }

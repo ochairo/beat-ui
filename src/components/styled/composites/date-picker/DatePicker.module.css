@@ -12,9 +12,9 @@
 }
 
 .root [data-part="header"] {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) 1.75rem;
   align-items: center;
-  justify-content: space-between;
   gap: 0.5rem;
 }
 
@@ -22,7 +22,61 @@
   font-size: 0.9rem;
   font-weight: 600;
   text-align: center;
-  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.root [data-part="title-content"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0 auto;
+}
+
+.root [data-part="title-month"] {
+  display: inline-flex;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.root [data-part="title-year"] {
+  display: inline-flex;
+  justify-content: center;
+}
+
+.root [data-part="month-button"],
+.root [data-part="year-button"] {
+  appearance: none;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.root [data-part="month-select"],
+.root [data-part="year-select"] {
+  border: 1px solid var(--beat-ui-color-border);
+  border-radius: 6px;
+  background: var(--beat-ui-color-background);
+  color: var(--beat-ui-color-text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.18rem 1.45rem 0.18rem 0.45rem;
+}
+
+.root [data-part="month-select"] {
+  min-width: 6.7rem;
+}
+
+.root [data-part="year-select"] {
+  min-width: 5.25rem;
 }
 
 .root [data-part="nav-button"] {
@@ -38,6 +92,22 @@
   font-size: 1.1rem;
   cursor: pointer;
   transition: background 120ms ease;
+}
+
+.root [data-part="nav-button"]:hover,
+.root [data-part="month-button"]:hover,
+.root [data-part="year-button"]:hover {
+  background: color-mix(
+    in srgb,
+    var(--beat-ui-color-background-accent-soft) 72%,
+    transparent
+  );
+}
+
+.root [data-part="month-button"],
+.root [data-part="year-button"] {
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
 }
 
 .root [data-part="grid"] {

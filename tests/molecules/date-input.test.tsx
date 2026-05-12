@@ -2,7 +2,19 @@ import { render } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 import { describe, expect, it } from "vitest";
 
-import { DateInput, ThemeRoot } from "../../src";
+import { DateInput, Dialog, ThemeRoot } from "../../src";
+
+function getCalendarMonthLabel(target: HTMLElement): string | null | undefined {
+  return target.querySelector(
+    "button[aria-label='Choose month'] [data-part='trigger-label']",
+  )?.textContent;
+}
+
+function getCalendarYearLabel(target: HTMLElement): string | null | undefined {
+  return target.querySelector(
+    "button[aria-label='Choose year'] [data-part='trigger-label']",
+  )?.textContent;
+}
 
 describe("DateInput", () => {
   it("renders a date input", () => {
@@ -232,8 +244,70 @@ describe("DateInput", () => {
     )?.set?.call(input, "20250615");
     input.dispatchEvent(new Event("input", { bubbles: true }));
 
-    const titleEl = target.querySelector("[role='dialog'] span") as HTMLElement;
-    expect(titleEl?.textContent).toBe("June 2025");
+    expect(getCalendarMonthLabel(target)).toBe("June");
+    expect(getCalendarYearLabel(target)).toBe("2025");
+
+    document.body.removeChild(target);
+    cleanup();
+  });
+
+  it("opens the year options inside the calendar popup", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DateInput defaultValue="2026-05-12" />
+      </ThemeRoot>,
+    );
+
+    const toggleButton = target.querySelector(
+      "button[aria-label='Toggle calendar']",
+    ) as HTMLButtonElement;
+    toggleButton.click();
+
+    const yearButton = target.querySelector("button[aria-label='Choose year']");
+    yearButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    const options = target.querySelectorAll("button[role='option']");
+
+    expect(options.length).toBe(11);
+    expect(options[0]?.textContent).toContain("2021");
+    expect(options[10]?.textContent).toContain("2031");
+
+    document.body.removeChild(target);
+    cleanup();
+  });
+
+  it("opens the year options when DateInput is inside a dialog", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <Dialog open={pulse(true)} title="Task details">
+          <DateInput defaultValue="2026-05-12" />
+        </Dialog>
+      </ThemeRoot>,
+    );
+
+    const toggleButton = target.querySelector(
+      "button[aria-label='Toggle calendar']",
+    ) as HTMLButtonElement;
+    toggleButton.click();
+
+    const yearButton = document.body.querySelector(
+      "button[aria-label='Choose year']",
+    );
+    yearButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    const options = document.body.querySelectorAll("button[role='option']");
+
+    expect(options.length).toBe(11);
+    expect(options[0]?.textContent).toContain("2021");
+    expect(options[10]?.textContent).toContain("2031");
 
     document.body.removeChild(target);
     cleanup();
