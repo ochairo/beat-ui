@@ -26,6 +26,14 @@
   user-select: none;
 }
 
+.root [data-part="trigger-label"] {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .root [data-part="chevron"] {
   position: absolute;
   right: 0.75rem;
@@ -39,12 +47,13 @@
   flex-shrink: 0;
 }
 
-.root [data-part="menu"] {
+.root [data-part="menu"],
+[data-beat-ui-select-popup="true"] [data-part="menu"] {
   position: absolute;
   top: calc(100% + 0.25rem);
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: var(--beat-ui-z-index-popover);
   background: var(--beat-ui-color-background-elevated);
   border-radius: 0.75rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -53,7 +62,8 @@
   outline: none;
 }
 
-.root [data-part="item"] {
+.root [data-part="item"],
+[data-beat-ui-select-popup="true"] [data-part="item"] {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -77,17 +87,20 @@
   outline: none;
 }
 
-.root [data-part="item"][data-highlighted="true"] {
+.root [data-part="item"][data-highlighted="true"],
+[data-beat-ui-select-popup="true"] [data-part="item"][data-highlighted="true"] {
   background: var(--beat-ui-color-primary-soft, rgba(99, 102, 241, 0.15));
   color: var(--beat-ui-color-primary);
 }
 
-.root [data-part="item"]:disabled {
+.root [data-part="item"]:disabled,
+[data-beat-ui-select-popup="true"] [data-part="item"]:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
 
-.root [data-part="search-input"] {
+.root [data-part="search-input"],
+[data-beat-ui-select-popup="true"] [data-part="search-input"] {
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem 0.75rem;
@@ -100,7 +113,8 @@
   outline: none;
 }
 
-.root [data-part="group-toggle"] {
+.root [data-part="group-toggle"],
+[data-beat-ui-select-popup="true"] [data-part="group-toggle"] {
   cursor: pointer;
   margin-right: 0.25rem;
   display: inline-block;

@@ -58,6 +58,21 @@ describe("Sparkline", () => {
     cleanup();
   });
 
+  it("supports plain values and stroke without subscriptions", () => {
+    const target = document.createElement("div");
+
+    const cleanup = render(
+      target,
+      <Sparkline values={[1, 4, 2]} stroke="orange" width={80} height={28} />,
+    );
+
+    const path = target.querySelector("path");
+    expect(path?.getAttribute("stroke")).toBe("orange");
+    expect(path?.getAttribute("d")).not.toBe("");
+
+    cleanup();
+  });
+
   it("uses custom stroke color when provided", () => {
     const values = pulse<readonly number[]>([1, 2]);
     const stroke = pulse("red");

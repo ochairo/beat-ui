@@ -1,0 +1,141 @@
+.frame {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid var(--beat-ui-color-border);
+  border-radius: 1.125rem;
+  background: linear-gradient(
+    180deg,
+    var(--beat-ui-color-background) 0%,
+    var(--beat-ui-color-background-subtle) 100%
+  );
+  color: var(--beat-ui-color-text);
+}
+
+.viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  overflow: auto;
+  box-sizing: border-box;
+  isolation: isolate;
+  scrollbar-gutter: stable;
+  background: var(--beat-ui-color-background);
+}
+
+.root {
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+  color: var(--beat-ui-color-text);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  width: max-content;
+  min-width: 100%;
+  z-index: var(--beat-ui-z-index-overlay, 30);
+  isolation: isolate;
+  background: var(--beat-ui-color-background-subtle);
+  box-shadow: 0 1px 0 var(--beat-ui-color-border-strong);
+}
+
+.root [data-sheet-header-scope="col"] {
+  --beat-ui-sheet-header-background: var(--beat-ui-color-background-subtle);
+  --beat-ui-sheet-header-color: var(--beat-ui-color-text-muted);
+  --beat-ui-sheet-header-selected-background: var(
+    --beat-ui-color-background-accent-soft
+  );
+  --beat-ui-sheet-header-selected-color: var(--beat-ui-color-text);
+  --beat-ui-sheet-header-selected-ring-color: var(--beat-ui-color-primary);
+  z-index: 0;
+  background: var(--beat-ui-sheet-header-background);
+  color: var(--beat-ui-sheet-header-color);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    box-shadow 120ms ease;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.root [data-sheet-header-scope="col"][data-sticky-top="true"] {
+  --beat-ui-sheet-header-background: var(
+    --beat-ui-sheet-sticky-header-background,
+    var(--beat-ui-color-background-subtle)
+  );
+}
+
+.root [data-sheet-header-scope="col"][data-sticky-left="true"] {
+  --beat-ui-sheet-header-background: var(
+    --beat-ui-sheet-sticky-column-background,
+    var(--beat-ui-sheet-header-background)
+  );
+}
+
+.root [data-sheet-header-scope="col"][data-sticky-corner="true"] {
+  --beat-ui-sheet-header-background: var(
+    --beat-ui-sheet-sticky-corner-background,
+    var(
+      --beat-ui-sheet-sticky-header-background,
+      var(--beat-ui-color-background-subtle)
+    )
+  );
+}
+
+.root [data-sheet-header-scope="col"][data-selected="true"] {
+  --beat-ui-sheet-header-background: var(
+    --beat-ui-sheet-header-selected-background
+  );
+  color: var(--beat-ui-sheet-header-selected-color);
+  box-shadow: inset 0 0 0 1px var(--beat-ui-sheet-header-selected-ring-color);
+}
+
+.root [data-sheet-cell="true"] {
+  --beat-ui-sheet-cell-background: var(--beat-ui-color-background);
+  --beat-ui-sheet-cell-color: var(--beat-ui-color-text);
+  --beat-ui-sheet-cell-selected-background: var(
+    --beat-ui-color-background-accent-soft
+  );
+  --beat-ui-sheet-cell-selected-ring-color: var(--beat-ui-color-primary-hover);
+  --beat-ui-sheet-cell-active-ring-color: var(--beat-ui-color-focus-ring);
+  --beat-ui-sheet-cell-editing-background: var(
+    --beat-ui-color-background-accent-soft
+  );
+  --beat-ui-sheet-cell-editing-ring-color: var(--beat-ui-color-primary);
+  z-index: 0;
+  background: var(--beat-ui-sheet-cell-background);
+  color: var(--beat-ui-sheet-cell-color);
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.root [data-sheet-cell="true"][data-sticky-left="true"] {
+  --beat-ui-sheet-cell-background: var(
+    --beat-ui-sheet-sticky-column-background,
+    var(--beat-ui-color-background)
+  );
+}
+
+.root [data-sheet-cell="true"][data-selected="true"] {
+  --beat-ui-sheet-cell-background: var(
+    --beat-ui-sheet-cell-selected-background
+  );
+  box-shadow: inset 0 0 0 1px var(--beat-ui-sheet-cell-selected-ring-color);
+}
+
+.root [data-sheet-cell="true"][data-active="true"] {
+  box-shadow: inset 0 0 0 2px var(--beat-ui-sheet-cell-active-ring-color);
+}
+
+.root [data-sheet-cell="true"][data-editing="true"] {
+  --beat-ui-sheet-cell-background: var(--beat-ui-sheet-cell-editing-background);
+  box-shadow: inset 0 0 0 2px var(--beat-ui-sheet-cell-editing-ring-color);
+}

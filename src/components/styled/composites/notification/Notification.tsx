@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Notification as HeadlessNotification,
+  HlNotification as HeadlessNotification,
   type NotificationProps,
   type NotificationTone,
 } from "../../../headless/composites/Notification";

@@ -1,4 +1,4 @@
-import { component, onCleanup } from "@ochairo/beat";
+import { Show, component, onCleanup } from "@ochairo/beat";
 
 import {
   createControllableState,
@@ -21,10 +21,11 @@ export interface TabStyles {
 }
 
 export interface TabItem {
-  readonly content: BeatUiRenderable;
+  readonly content?: BeatUiRenderable | undefined;
   readonly disabled?: boolean;
   readonly key: string;
   readonly label: string;
+  readonly renderContent?: (() => BeatUiRenderable) | undefined;
 }
 
 export interface TabProps
@@ -35,10 +36,12 @@ export interface TabProps
   readonly items: readonly TabItem[];
   readonly orientation?: TabOrientation;
   readonly styles?: TabStyles;
+  readonly unmountInactivePanels?: boolean | undefined;
 }
 
-export const Tab = component<TabProps>((props) => {
+export const HlTab = component<TabProps>((props) => {
   const orientation = props.orientation ?? "horizontal";
+  const shouldUnmountInactivePanels = props.unmountInactivePanels === true;
 
   const enabledItems = (): readonly TabItem[] =>
     props.items.filter((i) => !i.disabled);
@@ -52,6 +55,17 @@ export const Tab = component<TabProps>((props) => {
   });
 
   const buttonRefs = new Map<string, HTMLButtonElement>();
+  let panelRoot: HTMLDivElement | undefined;
+
+  function resolvePanelContent(item: TabItem): BeatUiRenderable {
+    return item.renderContent?.() ?? item.content;
+  }
+
+  function resetPanelScroll(): void {
+    if (panelRoot === undefined) return;
+    panelRoot.scrollTop = 0;
+    panelRoot.scrollLeft = 0;
+  }
 
   function syncStyles(activeKey: string): void {
     for (const item of props.items) {
@@ -70,6 +84,13 @@ export const Tab = component<TabProps>((props) => {
   function focusButton(key: string): void {
     buttonRefs.get(key)?.focus();
   }
+
+  onCleanup(
+    state.state.on(({ currentValue }) => {
+      syncStyles(currentValue);
+      resetPanelScroll();
+    }),
+  );
 
   function onKeyDown(e: KeyboardEvent): void {
     const enabled = enabledItems();
@@ -144,11 +165,6 @@ export const Tab = component<TabProps>((props) => {
             }
             ref={(el) => {
               buttonRefs.set(item.key, el as HTMLButtonElement);
-              onCleanup(
-                state.state.on(({ currentValue }) => {
-                  syncStyles(currentValue);
-                }),
-              );
               onCleanup(() => buttonRefs.delete(item.key));
             }}
             onClick={() => {
@@ -159,7 +175,16 @@ export const Tab = component<TabProps>((props) => {
           </button>
         ))}
       </div>
-      <div data-part="panel" style={props.styles?.panel}>
+      <div
+        data-part="panel"
+        style={props.styles?.panel}
+        ref={(el) => {
+          panelRoot = el as HTMLDivElement;
+          onCleanup(() => {
+            if (panelRoot === el) panelRoot = undefined;
+          });
+        }}
+      >
         {props.items.map((item) => {
           return (
             <div
@@ -176,7 +201,16 @@ export const Tab = component<TabProps>((props) => {
                 );
               }}
             >
-              {item.content}
+              {shouldUnmountInactivePanels ? (
+                <Show
+                  when={state.state}
+                  mapValue={(currentValue) => currentValue === item.key}
+                >
+                  {() => resolvePanelContent(item)}
+                </Show>
+              ) : (
+                resolvePanelContent(item)
+              )}
             </div>
           );
         })}

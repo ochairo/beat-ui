@@ -27,7 +27,7 @@ export interface ButtonProps
   readonly type?: "button" | "submit" | "reset";
 }
 
-export const Button = component<ButtonProps>((props) => {
+export const HlButton = component<ButtonProps>((props) => {
   const handleClick = (event: MouseEvent): void => {
     if (props.disabled) {
       event.preventDefault();

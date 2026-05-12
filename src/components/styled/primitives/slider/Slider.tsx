@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Slider as HeadlessSlider,
+  HlSlider as HeadlessSlider,
   type SliderProps,
 } from "../../../headless/primitives/Slider";
 import css from "./Slider.module.css";

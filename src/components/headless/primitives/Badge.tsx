@@ -24,7 +24,7 @@ export interface BadgeProps
   readonly tone?: BadgeTone;
 }
 
-export const Badge = component<BadgeProps>((props) => {
+export const HlBadge = component<BadgeProps>((props) => {
   return (
     <span
       id={props.id}

@@ -1,4 +1,4 @@
-import { render } from "@ochairo/beat";
+import { component, onCleanup, render } from "@ochairo/beat";
 import { describe, expect, it } from "vitest";
 
 import { Tab } from "../../src";
@@ -87,6 +87,112 @@ describe("Tab", () => {
     expect(buttons[1]?.getAttribute("aria-selected")).toBe("false");
     expect(panels[0]?.hidden).toBe(false);
     expect(panels[1]?.hidden).toBe(true);
+
+    cleanup();
+  });
+
+  it("preserves caller classes on the root element", () => {
+    const target = document.createElement("div");
+
+    const cleanup = render(
+      target,
+      <Tab
+        ariaLabel="Sections"
+        class="custom-tab-root"
+        items={[{ key: "one", label: "One", content: "First panel" }]}
+      />,
+    );
+
+    expect(
+      target.firstElementChild?.classList.contains("custom-tab-root"),
+    ).toBe(true);
+
+    cleanup();
+  });
+
+  it("unmounts inactive panel content when configured", () => {
+    const target = document.createElement("div");
+    const events: string[] = [];
+
+    const Panel = component<{ readonly name: string }>((props) => {
+      events.push(`mount:${props.name}`);
+      onCleanup(() => {
+        events.push(`unmount:${props.name}`);
+      });
+
+      return <span>{props.name}</span>;
+    });
+
+    const cleanup = render(
+      target,
+      <Tab
+        ariaLabel="Sections"
+        unmountInactivePanels
+        items={[
+          {
+            key: "one",
+            label: "One",
+            renderContent: () => <Panel name="one" />,
+          },
+          {
+            key: "two",
+            label: "Two",
+            renderContent: () => <Panel name="two" />,
+          },
+        ]}
+      />,
+    );
+
+    const buttons = Array.from(target.querySelectorAll('[role="tab"]'));
+
+    expect(events).toEqual(["mount:one"]);
+
+    buttons[1]?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(events).toEqual(["mount:one", "unmount:one", "mount:two"]);
+
+    cleanup();
+  });
+
+  it("resets panel wrapper scroll when the active tab changes", () => {
+    const target = document.createElement("div");
+
+    const cleanup = render(
+      target,
+      <Tab
+        ariaLabel="Scrollable sections"
+        items={[
+          {
+            key: "one",
+            label: "One",
+            content: <div style="height:200px">One</div>,
+          },
+          {
+            key: "two",
+            label: "Two",
+            content: <div style="height:200px">Two</div>,
+          },
+        ]}
+        styles={{ panel: "max-height:40px;overflow:auto;" }}
+      />,
+    );
+
+    const panelWrapper = target.querySelector(
+      '[data-part="panel"]',
+    ) as HTMLDivElement | null;
+    const buttons = Array.from(target.querySelectorAll('[role="tab"]'));
+
+    expect(panelWrapper).not.toBeNull();
+
+    if (panelWrapper !== null) {
+      panelWrapper.scrollTop = 24;
+      panelWrapper.scrollLeft = 12;
+    }
+
+    buttons[1]?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(panelWrapper?.scrollTop).toBe(0);
+    expect(panelWrapper?.scrollLeft).toBe(0);
 
     cleanup();
   });

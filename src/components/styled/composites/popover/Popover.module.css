@@ -1,0 +1,15 @@
+.root {
+  z-index: var(--beat-ui-z-index-popover);
+  background: var(--beat-ui-color-background-elevated);
+  border: 1px solid var(--beat-ui-color-border);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -2px rgb(0 0 0 / 0.2);
+  padding: 0.5rem;
+}
+
+/* Popover API: when browser supports it, :popover-open controls visibility */
+.root:not(:popover-open) {
+  display: none;
+}

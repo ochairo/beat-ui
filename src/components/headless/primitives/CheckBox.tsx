@@ -22,7 +22,7 @@ export interface CheckBoxProps
   readonly styles?: CheckBoxStyles;
 }
 
-export const CheckBox = component<CheckBoxProps>((props) => {
+export const HlCheckBox = component<CheckBoxProps>((props) => {
   const state = createControllableState<boolean>({
     defaultValue: props.defaultChecked ?? false,
     ...(props.checked !== undefined ? { value: props.checked } : {}),
@@ -58,4 +58,4 @@ export const CheckBox = component<CheckBoxProps>((props) => {
   );
 });
 
-export const Checkbox = CheckBox;
+export const HlCheckbox = HlCheckBox;

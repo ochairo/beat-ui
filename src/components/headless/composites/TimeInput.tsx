@@ -8,6 +8,14 @@ import {
   type BeatUiFocusHandlers,
 } from "../../../foundations";
 import type { BeatUiRenderable } from "../../../runtime";
+import {
+  isWithinFloatingLayer,
+  moveFloatingLayerToHost,
+  positionFloatingLayer,
+  resolveFloatingHorizontalAlign,
+  resolveFloatingLayerZIndex,
+  scheduleFloatingLayerMount,
+} from "./floating-layer";
 
 export interface TimeInputStyles {
   readonly root?: string;
@@ -182,11 +190,16 @@ function validateSlotDigit(
   return isHour24 ? (d === 0 ? digit : null) : digit;
 }
 
-export const TimeInput = component<TimeInputProps>((props) => {
+export const HlTimeInput = component<TimeInputProps>((props) => {
   const isOpen = pulse(false);
   let rootEl: HTMLDivElement | null = null;
+  let pickerWrapperEl: HTMLElement | null = null;
+  let cleanupPickerTracking: (() => void) | null = null;
   const hourDigits = getHourDigits(props.maxHour);
   const template = makeTemplate(hourDigits);
+  const pickerAlign = resolveFloatingHorizontalAlign(
+    props.styles?.pickerWrapper,
+  );
   const slots: Slots = makeEmptySlots(hourDigits);
 
   const state = createControllableState<string>({
@@ -206,6 +219,34 @@ export const TimeInput = component<TimeInputProps>((props) => {
   }
 
   let syncingFromSlots = false;
+
+  function updatePickerPosition(): void {
+    if (!rootEl || !pickerWrapperEl) return;
+    positionFloatingLayer({
+      anchor: rootEl,
+      layer: pickerWrapperEl,
+      align: pickerAlign,
+    });
+  }
+
+  function stopPickerTracking(): void {
+    cleanupPickerTracking?.();
+    cleanupPickerTracking = null;
+  }
+
+  function startPickerTracking(): void {
+    if (cleanupPickerTracking !== null) return;
+    const handleViewportChange = (): void => {
+      if (!isOpen.get()) return;
+      updatePickerPosition();
+    };
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange, true);
+    cleanupPickerTracking = () => {
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("scroll", handleViewportChange, true);
+    };
+  }
 
   function syncFromSlots(event?: Event): void {
     syncingFromSlots = true;
@@ -262,7 +303,13 @@ export const TimeInput = component<TimeInputProps>((props) => {
   }
 
   function handleDocumentClick(event: MouseEvent): void {
-    if (rootEl && !rootEl.contains(event.target as Node)) {
+    if (
+      !isWithinFloatingLayer(
+        event.target as Node | null,
+        rootEl,
+        pickerWrapperEl,
+      )
+    ) {
       isOpen.set(false);
     }
   }
@@ -370,6 +417,7 @@ export const TimeInput = component<TimeInputProps>((props) => {
         rootEl = el as HTMLDivElement;
         document.addEventListener("click", handleDocumentClick, true);
         onCleanup(() => {
+          stopPickerTracking();
           document.removeEventListener("click", handleDocumentClick, true);
         });
       }}
@@ -401,7 +449,13 @@ export const TimeInput = component<TimeInputProps>((props) => {
             onInput={handleInput}
             onKeyDown={handleKeyDown}
             onFocus={props.onFocus}
-            onBlur={props.onBlur}
+            onBlur={(event: FocusEvent) => {
+              const rel = (event as FocusEvent & { relatedTarget: Node | null })
+                .relatedTarget;
+              if (!isWithinFloatingLayer(rel, rootEl, pickerWrapperEl)) {
+                props.onBlur?.(event);
+              }
+            }}
           />
           <div
             data-part="input-overlay"
@@ -441,6 +495,7 @@ export const TimeInput = component<TimeInputProps>((props) => {
           disabled={props.disabled}
           aria-label="Toggle time picker"
           style={props.styles?.iconButton}
+          onMouseDown={(event: MouseEvent) => event.preventDefault()}
           onClick={togglePicker}
         >
           {props.icon}
@@ -448,21 +503,42 @@ export const TimeInput = component<TimeInputProps>((props) => {
       </div>
       <div
         data-part="picker-wrapper"
+        data-beat-ui-time-input-popup="true"
         role="dialog"
         style={props.styles?.pickerWrapper}
         ref={(el) => {
           const htmlEl = el as HTMLElement;
+          pickerWrapperEl = htmlEl;
           htmlEl.style.display = "none";
-          isOpen.on(({ currentValue }) => {
-            htmlEl.style.display = currentValue ? "" : "none";
-            if (currentValue) {
-              requestAnimationFrame(() => {
-                htmlEl
-                  .querySelectorAll<HTMLElement>('[aria-selected="true"]')
-                  .forEach((btn) => btn.scrollIntoView({ block: "nearest" }));
-              });
+          if (htmlEl.style.zIndex === "") {
+            htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
+          }
+          onCleanup(() => {
+            if (pickerWrapperEl === htmlEl) {
+              pickerWrapperEl = null;
             }
           });
+          onCleanup(scheduleFloatingLayerMount(htmlEl));
+          onCleanup(
+            isOpen.on(({ currentValue }) => {
+              htmlEl.style.display = currentValue ? "" : "none";
+              if (currentValue) {
+                htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
+                moveFloatingLayerToHost(htmlEl);
+                startPickerTracking();
+                updatePickerPosition();
+                requestAnimationFrame(() => {
+                  if (!isOpen.get()) return;
+                  updatePickerPosition();
+                  htmlEl
+                    .querySelectorAll<HTMLElement>('[aria-selected="true"]')
+                    .forEach((btn) => btn.scrollIntoView({ block: "nearest" }));
+                });
+                return;
+              }
+              stopPickerTracking();
+            }),
+          );
         }}
       >
         {props.timePicker}

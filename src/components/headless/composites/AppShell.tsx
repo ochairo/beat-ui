@@ -36,7 +36,7 @@ export interface AppShellProps extends BeatUiAccessibilityProps {
   readonly styles?: AppShellStyles;
 }
 
-export const AppShell = component<AppShellProps>((props) => {
+export const HlAppShell = component<AppShellProps>((props) => {
   const mode = props.sidebarMode ?? "none";
   const sidebarOpen = pulse(
     mode === "fixed" ? true : (props.defaultSidebarOpen ?? false),

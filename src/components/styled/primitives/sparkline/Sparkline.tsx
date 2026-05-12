@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Sparkline as HeadlessSparkline,
+  HlSparkline as HeadlessSparkline,
   type SparklineProps,
 } from "../../../headless/primitives/Sparkline";
 import css from "./Sparkline.module.css";

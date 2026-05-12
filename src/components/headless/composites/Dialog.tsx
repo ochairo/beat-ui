@@ -28,7 +28,7 @@ export interface DialogProps
   readonly title?: BeatUiRenderable;
 }
 
-export const Dialog = component<DialogProps>((props) => {
+export const HlDialog = component<DialogProps>((props) => {
   const state = createControllableState<boolean>({
     defaultValue: props.defaultOpen ?? false,
     ...(props.open !== undefined ? { value: props.open } : {}),
@@ -57,7 +57,7 @@ export const Dialog = component<DialogProps>((props) => {
         >
           {props.title !== undefined || props.dismissible !== false ? (
             <div data-part="header" style={props.styles?.header}>
-              <div>{props.title}</div>
+              <div data-part="title">{props.title}</div>
               {props.dismissible !== false ? (
                 <button
                   type="button"
@@ -82,6 +82,6 @@ export const Dialog = component<DialogProps>((props) => {
   );
 });
 
-export const Modal = Dialog;
+export const HlModal = HlDialog;
 
 export type ModalProps = DialogProps;

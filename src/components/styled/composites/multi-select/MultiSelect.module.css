@@ -39,12 +39,13 @@
   flex-shrink: 0;
 }
 
-.root [data-part="menu"] {
+.root [data-part="menu"],
+[data-beat-ui-multi-select-popup="true"] [data-part="menu"] {
   position: absolute;
   top: calc(100% + 0.25rem);
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: var(--beat-ui-z-index-popover);
   background: var(--beat-ui-color-background-elevated);
   border-radius: 0.75rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -53,7 +54,8 @@
   outline: none;
 }
 
-.root [data-part="item"] {
+.root [data-part="item"],
+[data-beat-ui-multi-select-popup="true"] [data-part="item"] {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -77,23 +79,29 @@
   outline: none;
 }
 
-.root [data-part="item"][data-highlighted="true"] {
+.root [data-part="item"][data-highlighted="true"],
+[data-beat-ui-multi-select-popup="true"]
+  [data-part="item"][data-highlighted="true"] {
   background: var(--beat-ui-color-primary-soft, rgba(99, 102, 241, 0.15));
   color: var(--beat-ui-color-primary);
 }
 
-.root [data-part="item"]:disabled {
+.root [data-part="item"]:disabled,
+[data-beat-ui-multi-select-popup="true"] [data-part="item"]:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
 
-.root [data-part="item"][data-selectable="false"] {
+.root [data-part="item"][data-selectable="false"],
+[data-beat-ui-multi-select-popup="true"]
+  [data-part="item"][data-selectable="false"] {
   cursor: default;
   opacity: 0.6;
   pointer-events: none;
 }
 
-.root [data-part="checkbox"] {
+.root [data-part="checkbox"],
+[data-beat-ui-multi-select-popup="true"] [data-part="checkbox"] {
   width: 1rem;
   height: 1rem;
   accent-color: var(--beat-ui-color-primary);
@@ -101,7 +109,8 @@
   flex-shrink: 0;
 }
 
-.root [data-part="search-input"] {
+.root [data-part="search-input"],
+[data-beat-ui-multi-select-popup="true"] [data-part="search-input"] {
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem 0.75rem;
@@ -114,7 +123,8 @@
   outline: none;
 }
 
-.root [data-part="group-toggle"] {
+.root [data-part="group-toggle"],
+[data-beat-ui-multi-select-popup="true"] [data-part="group-toggle"] {
   cursor: pointer;
   margin-right: 0.25rem;
   display: inline-block;

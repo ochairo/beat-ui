@@ -2,7 +2,11 @@ import { render } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 import { describe, expect, it } from "vitest";
 
-import { MultiSelect } from "../../src";
+import { MultiSelect, ThemeRoot } from "../../src";
+
+function renderMultiSelect(target: HTMLElement, view: JSX.Element): () => void {
+  return render(target, <ThemeRoot>{view}</ThemeRoot>);
+}
 
 const OPTIONS = [
   { label: "Alpha", value: "a" },
@@ -15,7 +19,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>([]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect value={value} options={OPTIONS} />,
     );
@@ -38,7 +42,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>(["a", "b"]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect value={value} options={OPTIONS} />,
     );
@@ -58,7 +62,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>(["a", "c"]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect value={value} options={OPTIONS} />,
     );
@@ -74,7 +78,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>([]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect value={value} options={OPTIONS} placeholder="Pick items" />,
     );
@@ -90,7 +94,7 @@ describe("MultiSelect", () => {
     const value = pulse<readonly string[]>([]);
     const changes: readonly string[][] = [];
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect
         value={value}
@@ -118,7 +122,7 @@ describe("MultiSelect", () => {
       { label: "B", value: "b", disabled: true },
     ];
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect value={value} options={options} />,
     );
@@ -138,7 +142,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>(["b"]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect value={value} options={OPTIONS} />,
     );
@@ -159,7 +163,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>([]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect canSearch value={value} options={OPTIONS} />,
     );
@@ -186,7 +190,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>([]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect value={value} options={OPTIONS} />,
     );
@@ -200,11 +204,11 @@ describe("MultiSelect", () => {
     cleanup();
   });
 
-  it("clears search query when menu is closed", () => {
+  it("clears search query when menu is done", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>([]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect canSearch value={value} options={OPTIONS} />,
     );
@@ -231,7 +235,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>([]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect
         value={value}
@@ -272,7 +276,7 @@ describe("MultiSelect", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>([]);
 
-    const cleanup = render(
+    const cleanup = renderMultiSelect(
       target,
       <MultiSelect
         value={value}
@@ -303,6 +307,31 @@ describe("MultiSelect", () => {
     options = target.querySelectorAll('[role="option"]');
     (options[1] as HTMLButtonElement).click();
     expect(value.get()).toEqual(["fruits", "apple"]);
+
+    cleanup();
+  });
+
+  it("renders the dropdown as a floating layer outside the control subtree", async () => {
+    const target = document.createElement("div");
+
+    const cleanup = renderMultiSelect(
+      target,
+      <MultiSelect value={pulse<readonly string[]>([])} options={OPTIONS} />,
+    );
+
+    const trigger = target.querySelector("button") as HTMLButtonElement;
+    const controlRoot = trigger.parentElement as HTMLElement;
+
+    trigger.click();
+    await Promise.resolve();
+
+    const dropdown = target.querySelector(
+      '[data-part="dropdown"]',
+    ) as HTMLElement | null;
+
+    expect(dropdown).not.toBeNull();
+    expect(controlRoot.contains(dropdown ?? null)).toBe(false);
+    expect(dropdown?.style.position).toBe("fixed");
 
     cleanup();
   });

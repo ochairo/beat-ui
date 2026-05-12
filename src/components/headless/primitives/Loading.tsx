@@ -17,7 +17,7 @@ export interface LoadingProps
   readonly styles?: LoadingStyles;
 }
 
-export const Loading = component<LoadingProps>((props) => {
+export const HlLoading = component<LoadingProps>((props) => {
   return (
     <span
       id={props.id}

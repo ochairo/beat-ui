@@ -2,14 +2,18 @@ import { render } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 import { describe, expect, it } from "vitest";
 
-import { Select } from "../../src";
+import { Select, ThemeRoot } from "../../src";
+
+function renderSelect(target: HTMLElement, view: JSX.Element): () => void {
+  return render(target, <ThemeRoot>{view}</ThemeRoot>);
+}
 
 describe("Select", () => {
   it("updates controlled value when an option is clicked", () => {
     const target = document.createElement("div");
     const value = pulse("a");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         value={value}
@@ -37,7 +41,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("b");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         value={value}
@@ -58,7 +62,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("a");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         value={value}
@@ -84,7 +88,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         canSearch
@@ -120,7 +124,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         value={value}
@@ -140,11 +144,11 @@ describe("Select", () => {
     cleanup();
   });
 
-  it("clears search query when menu is closed", () => {
+  it("clears search query when menu is done", () => {
     const target = document.createElement("div");
     const value = pulse("");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         canSearch
@@ -181,7 +185,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         value={value}
@@ -224,7 +228,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         value={value}
@@ -254,7 +258,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         value={value}
@@ -288,7 +292,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         value={value}
@@ -350,7 +354,7 @@ describe("Select", () => {
     const target = document.createElement("div");
     const value = pulse("");
 
-    const cleanup = render(
+    const cleanup = renderSelect(
       target,
       <Select
         canSearch
@@ -391,6 +395,37 @@ describe("Select", () => {
     expect(options[0]?.textContent).toContain("Food");
     expect(options[1]?.textContent).toContain("Fruits");
     expect(options[2]?.textContent).toContain("Orange");
+
+    cleanup();
+  });
+
+  it("renders the dropdown as a floating layer outside the control subtree", async () => {
+    const target = document.createElement("div");
+
+    const cleanup = renderSelect(
+      target,
+      <Select
+        value={pulse("a")}
+        options={[
+          { value: "a", label: "Alpha" },
+          { value: "b", label: "Beta" },
+        ]}
+      />,
+    );
+
+    const trigger = target.querySelector("button") as HTMLButtonElement;
+    const controlRoot = trigger.parentElement as HTMLElement;
+
+    trigger.click();
+    await Promise.resolve();
+
+    const dropdown = target.querySelector(
+      '[data-part="dropdown"]',
+    ) as HTMLElement | null;
+
+    expect(dropdown).not.toBeNull();
+    expect(controlRoot.contains(dropdown ?? null)).toBe(false);
+    expect(dropdown?.style.position).toBe("fixed");
 
     cleanup();
   });

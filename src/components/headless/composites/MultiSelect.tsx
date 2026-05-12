@@ -7,6 +7,14 @@ import {
   type BeatUiControlledValueProps,
   type BeatUiFocusHandlers,
 } from "../../../foundations";
+import {
+  isWithinFloatingLayer,
+  measureFloatingLayerHeight,
+  moveFloatingLayerToHost,
+  positionFloatingLayer,
+  resolveFloatingLayerZIndex,
+  scheduleFloatingLayerMount,
+} from "./floating-layer";
 
 export interface MultiSelectStyles {
   readonly trigger?: string | undefined;
@@ -181,7 +189,7 @@ const MultiSelectItem = component<MultiSelectItemProps>((props) => {
   );
 });
 
-export const MultiSelect = component<MultiSelectProps>((props) => {
+export const HlMultiSelect = component<MultiSelectProps>((props) => {
   const state = createControllableState<readonly string[]>({
     defaultValue: props.defaultValue ?? [],
     ...(props.value !== undefined ? { value: props.value } : {}),
@@ -194,8 +202,40 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
   const highlightedIndex = pulse(-1);
   const expandedKeys = pulse<readonly string[]>([]);
   let triggerEl: HTMLButtonElement | null = null;
+  let dropdownEl: HTMLDivElement | null = null;
   let menuEl: HTMLDivElement | null = null;
   let inputEl: HTMLInputElement | null = null;
+  let cleanupDropdownMount: (() => void) | null = null;
+  let cleanupDropdownTracking: (() => void) | null = null;
+
+  function updateDropdownPosition(): void {
+    if (!triggerEl || !dropdownEl) return;
+    positionFloatingLayer({
+      anchor: triggerEl,
+      layer: dropdownEl,
+      matchAnchorWidth: true,
+      height: measureFloatingLayerHeight(dropdownEl, menuEl),
+    });
+  }
+
+  function stopDropdownTracking(): void {
+    cleanupDropdownTracking?.();
+    cleanupDropdownTracking = null;
+  }
+
+  function startDropdownTracking(): void {
+    if (cleanupDropdownTracking !== null) return;
+    const handleViewportChange = (): void => {
+      if (!isOpen.get()) return;
+      updateDropdownPosition();
+    };
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange, true);
+    cleanupDropdownTracking = () => {
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("scroll", handleViewportChange, true);
+    };
+  }
 
   function flattenOptions(
     options: readonly MultiSelectOption[],
@@ -319,6 +359,11 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
         itemCleanups.push(r.cleanup);
       }
     }
+    if (isOpen.get()) {
+      queueMicrotask(() => {
+        if (isOpen.get()) updateDropdownPosition();
+      });
+    }
   }
 
   onCleanup(expandedKeys.on(() => renderItems()));
@@ -408,12 +453,7 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
 
   function onDocMouseDown(e: MouseEvent): void {
     const t = e.target as Node;
-    if (
-      !triggerEl?.contains(t) &&
-      !menuEl?.contains(t) &&
-      !inputEl?.contains(t)
-    )
-      closeMenu();
+    if (!isWithinFloatingLayer(t, triggerEl, dropdownEl)) closeMenu();
   }
 
   onCleanup(
@@ -422,10 +462,21 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
         document.addEventListener("mousedown", onDocMouseDown);
       } else {
         document.removeEventListener("mousedown", onDocMouseDown);
+        cleanupDropdownMount?.();
+        cleanupDropdownMount = null;
+        dropdownEl = null;
+        menuEl = null;
+        inputEl = null;
+        stopDropdownTracking();
       }
     }),
   );
   onCleanup(() => document.removeEventListener("mousedown", onDocMouseDown));
+  onCleanup(() => {
+    cleanupDropdownMount?.();
+    cleanupDropdownMount = null;
+    stopDropdownTracking();
+  });
 
   function onTriggerKeyDown(e: KeyboardEvent): void {
     if (["Enter", " ", "ArrowDown", "ArrowUp"].includes(e.key)) {
@@ -512,7 +563,9 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
         onBlur={(e: FocusEvent) => {
           const rel = (e as FocusEvent & { relatedTarget: Node | null })
             .relatedTarget;
-          if (!menuEl?.contains(rel) && rel !== inputEl) props.onBlur?.(e);
+          if (!isWithinFloatingLayer(rel, triggerEl, dropdownEl)) {
+            props.onBlur?.(e);
+          }
         }}
       >
         <span>{triggerLabel}</span>
@@ -536,7 +589,25 @@ export const MultiSelect = component<MultiSelectProps>((props) => {
       </button>
       <Show when={isOpen}>
         {() => (
-          <div data-part="dropdown">
+          <div
+            data-part="dropdown"
+            data-beat-ui-multi-select-popup="true"
+            ref={(el) => {
+              const htmlEl = el as HTMLDivElement;
+              dropdownEl = htmlEl;
+              if (htmlEl.style.zIndex === "") {
+                htmlEl.style.zIndex = resolveFloatingLayerZIndex(triggerEl);
+              }
+              cleanupDropdownMount?.();
+              cleanupDropdownMount = scheduleFloatingLayerMount(htmlEl);
+              startDropdownTracking();
+              queueMicrotask(() => {
+                if (dropdownEl !== htmlEl || !isOpen.get()) return;
+                moveFloatingLayerToHost(htmlEl);
+                updateDropdownPosition();
+              });
+            }}
+          >
             {props.canSearch ? (
               <input
                 type="text"

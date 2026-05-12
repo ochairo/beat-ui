@@ -45,7 +45,7 @@ const DEFAULT_COLORS = [
   "#f472b6",
 ];
 
-export const ScatterPlot = component<ScatterPlotProps>((props) => {
+export const HlScatterPlot = component<ScatterPlotProps>((props) => {
   const w = props.width ?? 400;
   const h = props.height ?? 300;
   const pad = props.padding ?? 44;

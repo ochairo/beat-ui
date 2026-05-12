@@ -8,7 +8,7 @@ import {
   type BeatUiFocusHandlers,
 } from "../../../foundations";
 
-import { RadioButton } from "../primitives/RadioButton";
+import { HlRadioButton } from "../primitives/RadioButton";
 
 export interface RadioGroupStyles {
   readonly root?: string | undefined;
@@ -32,7 +32,7 @@ export interface RadioGroupProps
   readonly styles?: RadioGroupStyles | undefined;
 }
 
-export const RadioGroup = component<RadioGroupProps>((props) => {
+export const HlRadioGroup = component<RadioGroupProps>((props) => {
   const state = createControllableState<string>({
     defaultValue: props.defaultValue ?? "",
     ...(props.value !== undefined ? { value: props.value } : {}),
@@ -65,7 +65,7 @@ export const RadioGroup = component<RadioGroupProps>((props) => {
             : undefined;
 
         return (
-          <RadioButton
+          <HlRadioButton
             name={props.name}
             value={option.value}
             checked={checked}
@@ -76,7 +76,7 @@ export const RadioGroup = component<RadioGroupProps>((props) => {
             onBlur={props.onBlur}
           >
             {option.label}
-          </RadioButton>
+          </HlRadioButton>
         );
       })}
     </div>

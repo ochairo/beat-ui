@@ -39,7 +39,7 @@ const DEFAULT_COLORS = [
   "#f472b6",
 ];
 
-export const LineChart = component<LineChartProps>((props) => {
+export const HlLineChart = component<LineChartProps>((props) => {
   const w = props.width ?? 400;
   const h = props.height ?? 240;
   const pad = props.padding ?? 40;

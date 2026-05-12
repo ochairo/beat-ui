@@ -9,8 +9,8 @@
   align-items: start;
 }
 
-.horizontal [data-part="tab-list"],
-.vertical [data-part="tab-list"] {
+.horizontal > [data-part="tab-list"],
+.vertical > [data-part="tab-list"] {
   display: flex;
   gap: 0.5rem;
   padding: 0.375rem;
@@ -18,15 +18,15 @@
   background: var(--beat-ui-color-background-subtle);
 }
 
-.horizontal [data-part="tab-list"] {
+.horizontal > [data-part="tab-list"] {
   flex-direction: row;
 }
 
-.vertical [data-part="tab-list"] {
+.vertical > [data-part="tab-list"] {
   flex-direction: column;
 }
 
-.horizontal [data-part="panel"] {
+.horizontal > [data-part="panel"] {
   margin-top: 0.75rem;
   padding: 1rem;
   border: 1px solid var(--beat-ui-color-border);
@@ -36,7 +36,7 @@
   min-height: 18rem;
 }
 
-.vertical [data-part="panel"] {
+.vertical > [data-part="panel"] {
   margin-top: 0;
   padding: 1rem;
   border: 1px solid var(--beat-ui-color-border);
@@ -46,8 +46,8 @@
   min-height: 18rem;
 }
 
-.horizontal [data-part="tab-button"],
-.vertical [data-part="tab-button"] {
+.horizontal > [data-part="tab-list"] > [data-part="tab-button"],
+.vertical > [data-part="tab-list"] > [data-part="tab-button"] {
   display: inline-flex;
   align-items: center;
   min-height: 2.25rem;
@@ -60,26 +60,30 @@
   cursor: pointer;
 }
 
-.horizontal [data-part="tab-button"] {
+.horizontal > [data-part="tab-list"] > [data-part="tab-button"] {
   justify-content: center;
   width: auto;
 }
 
-.vertical [data-part="tab-button"] {
+.vertical > [data-part="tab-list"] > [data-part="tab-button"] {
   justify-content: flex-start;
   width: 100%;
   padding: 0.75rem 0.875rem;
 }
 
-.horizontal [data-part="tab-button"][aria-selected="true"],
-.vertical [data-part="tab-button"][aria-selected="true"] {
+.horizontal
+  > [data-part="tab-list"]
+  > [data-part="tab-button"][aria-selected="true"],
+.vertical
+  > [data-part="tab-list"]
+  > [data-part="tab-button"][aria-selected="true"] {
   border-color: var(--beat-ui-color-primary);
   background: var(--beat-ui-color-primary);
   color: var(--beat-ui-color-primary-text);
 }
 
-.horizontal [data-part="tab-button"]:disabled,
-.vertical [data-part="tab-button"]:disabled {
+.horizontal > [data-part="tab-list"] > [data-part="tab-button"]:disabled,
+.vertical > [data-part="tab-list"] > [data-part="tab-button"]:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

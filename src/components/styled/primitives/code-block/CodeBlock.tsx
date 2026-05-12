@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  CodeBlock as HeadlessCodeBlock,
+  HlCodeBlock as HeadlessCodeBlock,
   type CodeBlockProps,
 } from "../../../headless/primitives/CodeBlock";
 import css from "./CodeBlock.module.css";

@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  DatePicker as HeadlessDatePicker,
+  HlDatePicker as HeadlessDatePicker,
   type DatePickerProps,
 } from "../../../headless/composites/DatePicker";
 import css from "./DatePicker.module.css";

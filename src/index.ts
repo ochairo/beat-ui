@@ -1,3 +1,5 @@
+import "./foundations/base.css";
+
 export {
   AreaChart,
   Badge,
@@ -30,9 +32,11 @@ export {
   MultiSelect,
   Notification,
   NumberInput,
+  Popover,
   RadioGroup,
   Select,
   SearchInput,
+  Sheet,
   SideMenu,
   Tab,
   TextInput,
@@ -40,7 +44,59 @@ export {
   TimePicker,
 } from "./components/styled/composites";
 
-export { DataGrid, Table } from "./components/styled/patterns";
+export {
+  HlAreaChart,
+  HlBadge,
+  HlBarChart,
+  HlButton,
+  HlCard,
+  HlCheckBox,
+  HlCheckbox,
+  HlCodeBlock,
+  HlInput,
+  HlLineChart,
+  HlLoading,
+  HlPieChart,
+  HlRadioButton,
+  HlScatterPlot,
+  HlSparkline,
+  HlSlider,
+  HlSwitch,
+  HlTextArea,
+} from "./components/headless/primitives";
+
+export {
+  HlAppShell,
+  HlDateInput,
+  HlDatePicker,
+  HlDialog,
+  HlDropdown,
+  HlDropbox,
+  HlModal,
+  HlMultiSelect,
+  HlNotification,
+  HlNumberInput,
+  HlPopover,
+  HlRadioGroup,
+  HlSearchInput,
+  HlSelect,
+  HlSideMenu,
+  HlTab,
+  HlTextInput,
+  HlTimeInput,
+  HlTimePicker,
+} from "./components/headless/composites";
+
+export {
+  SheetBody,
+  SheetCell,
+  SheetColumnHeader,
+  SheetHeader,
+  SheetRoot,
+  SheetRow,
+  SheetRowHeader,
+  createSheetController,
+} from "./components/headless/sheet";
 
 export {
   IconArrowRight,
@@ -166,11 +222,22 @@ export type {
   NotificationProps,
   NotificationTone,
   NumberInputProps,
+  PopoverPlacement,
+  PopoverProps,
   RadioGroupOption,
   RadioGroupProps,
   SelectOption,
   SelectProps,
   SearchInputProps,
+  SheetCellContext,
+  SheetClassNames,
+  SheetColumnDefinition,
+  SheetHeaderCellContext,
+  SheetProps,
+  SheetResolvedProps,
+  SheetRowContext,
+  SheetRowId,
+  SheetStyles,
   SideMenuItem,
   SideMenuProps,
   TabItem,
@@ -182,20 +249,23 @@ export type {
 } from "./components/styled/composites";
 
 export type {
-  BeatUiTableSort,
-  BeatUiTableSortDirection,
-  DataGridCell,
-  DataGridCellType,
-  DataGridCellValue,
-  DataGridColumn,
-  DataGridGrid,
-  DataGridProps,
-  DataGridRow,
-  DataGridSelection,
-  TableColumn,
-  TableProps,
-  TableRow,
-} from "./components/styled/patterns";
+  SheetCellAlign,
+  SheetCellCoord,
+  SheetCellDataType,
+  SheetEditValueBehavior,
+  SheetDataAttributes,
+  SheetCellEditorKind,
+  SheetCellOption,
+  SheetCellProps,
+  SheetCellRegistration,
+  SheetCellSelection,
+  SheetController,
+  SheetEditorRenderProps,
+  SheetHeaderCellProps,
+  SheetRootProps,
+  SheetRowProps,
+  SheetSectionProps,
+} from "./components/headless/sheet";
 
 export type {
   BeatUiAccessibilityProps,

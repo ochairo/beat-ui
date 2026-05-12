@@ -64,9 +64,10 @@
   transition: color 160ms ease;
 }
 
-.root [data-part="calendar-wrapper"] {
+.root [data-part="calendar-wrapper"],
+[data-beat-ui-date-input-popup="true"][data-part="calendar-wrapper"] {
   position: absolute;
   top: calc(100% + 0.25rem);
   left: 0;
-  z-index: 50;
+  z-index: var(--beat-ui-z-index-popover);
 }

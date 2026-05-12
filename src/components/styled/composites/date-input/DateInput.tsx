@@ -2,7 +2,7 @@ import { component } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 
 import {
-  DateInput as HeadlessDateInput,
+  HlDateInput as HeadlessDateInput,
   type DateInputProps,
 } from "../../../headless/composites/DateInput";
 import { DatePicker } from "../date-picker/DatePicker";

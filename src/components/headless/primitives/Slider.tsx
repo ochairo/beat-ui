@@ -22,7 +22,7 @@ export interface SliderProps
   readonly styles?: SliderStyles | undefined;
 }
 
-export const Slider = component<SliderProps>((props) => {
+export const HlSlider = component<SliderProps>((props) => {
   const state = createControllableState<number>({
     defaultValue: props.defaultValue ?? props.min ?? 0,
     ...(props.value !== undefined ? { value: props.value } : {}),

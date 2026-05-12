@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  LineChart as HeadlessLineChart,
+  HlLineChart as HeadlessLineChart,
   type LineChartProps,
   type LineChartSeries,
 } from "../../../headless/primitives/LineChart";

@@ -31,7 +31,7 @@ export interface NotificationProps
   readonly tone?: NotificationTone;
 }
 
-export const Notification = component<NotificationProps>((props) => {
+export const HlNotification = component<NotificationProps>((props) => {
   const state = createControllableState<boolean>({
     defaultValue: props.defaultOpen ?? true,
     ...(props.open !== undefined ? { value: props.open } : {}),

@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  PieChart as HeadlessPieChart,
+  HlPieChart as HeadlessPieChart,
   type PieChartProps,
   type PieChartSlice,
 } from "../../../headless/primitives/PieChart";

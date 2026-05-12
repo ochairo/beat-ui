@@ -50,7 +50,7 @@ function parseTime(value: string): { hour: string; minute: string } {
   return { hour: "", minute: "" };
 }
 
-export const TimePicker = component<TimePickerProps>((props) => {
+export const HlTimePicker = component<TimePickerProps>((props) => {
   const state = createControllableState<string>({
     defaultValue: props.defaultValue ?? "",
     ...(props.value !== undefined ? { value: props.value } : {}),

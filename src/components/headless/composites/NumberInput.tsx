@@ -1,13 +1,13 @@
 import { component } from "@ochairo/beat";
-import { pulse } from "@ochairo/pulse";
 
 import type {
   BeatUiAccessibilityProps,
   BeatUiControlledValueProps,
   BeatUiFocusHandlers,
 } from "../../../foundations";
+import { createControllableState } from "../../../foundations";
 import type { BeatUiRenderable } from "../../../runtime";
-import { Input } from "../primitives/Input";
+import { HlInput } from "../primitives/Input";
 
 export interface NumberInputStyles {
   readonly root?: string;
@@ -33,12 +33,17 @@ export interface NumberInputProps
   readonly styles?: NumberInputStyles;
 }
 
-export const NumberInput = component<NumberInputProps>((props) => {
-  const internalValue = pulse(props.defaultValue ?? "");
+export const HlNumberInput = component<NumberInputProps>((props) => {
+  const state = createControllableState<string>({
+    defaultValue: props.defaultValue ?? "",
+    ...(props.value !== undefined ? { value: props.value } : {}),
+    ...(props.onValueChange !== undefined
+      ? { onChange: props.onValueChange }
+      : {}),
+  });
 
   function handleValueChange(v: string, event: Event | undefined): void {
-    internalValue.set(v);
-    props.onValueChange?.(v, event);
+    state.setValue(v, event);
   }
 
   function clamp(n: number): number {
@@ -50,15 +55,26 @@ export const NumberInput = component<NumberInputProps>((props) => {
 
   function step(direction: 1 | -1): void {
     if (props.disabled || props.readOnly) return;
-    const raw =
-      props.value !== undefined ? props.value.get() : internalValue.get();
+    const raw = state.state.get();
     const current = parseFloat(raw);
     const base = Number.isNaN(current) ? 0 : current;
     const stepSize = props.step ?? 1;
     const next = clamp(base + direction * stepSize);
     const nextStr = String(next);
-    internalValue.set(nextStr);
-    props.onValueChange?.(nextStr, undefined);
+    state.setValue(nextStr);
+  }
+
+  function handleStepMouseDown(direction: 1 | -1, event: MouseEvent): void {
+    event.preventDefault();
+    step(direction);
+  }
+
+  function handleStepClick(direction: 1 | -1, event: MouseEvent): void {
+    if (event.detail !== 0) {
+      return;
+    }
+
+    step(direction);
   }
 
   return (
@@ -67,13 +83,12 @@ export const NumberInput = component<NumberInputProps>((props) => {
       data-invalid={props.invalid}
       style={props.styles?.root}
     >
-      <Input
+      <HlInput
         type="text"
         inputMode="decimal"
         id={props.id}
         name={props.name}
-        value={props.value}
-        defaultValue={props.defaultValue}
+        value={state.state}
         onValueChange={handleValueChange}
         disabled={props.disabled}
         required={props.required}
@@ -99,7 +114,8 @@ export const NumberInput = component<NumberInputProps>((props) => {
           disabled={props.disabled}
           aria-label="Increment"
           style={props.styles?.stepButton}
-          onClick={() => step(1)}
+          onMouseDown={(event: MouseEvent) => handleStepMouseDown(1, event)}
+          onClick={(event: MouseEvent) => handleStepClick(1, event)}
         >
           {props.incrementIcon}
         </button>
@@ -110,7 +126,8 @@ export const NumberInput = component<NumberInputProps>((props) => {
           disabled={props.disabled}
           aria-label="Decrement"
           style={props.styles?.stepButton}
-          onClick={() => step(-1)}
+          onMouseDown={(event: MouseEvent) => handleStepMouseDown(-1, event)}
+          onClick={(event: MouseEvent) => handleStepClick(-1, event)}
         >
           {props.decrementIcon}
         </button>

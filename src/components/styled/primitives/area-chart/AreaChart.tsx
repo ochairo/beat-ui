@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  AreaChart as HeadlessAreaChart,
+  HlAreaChart as HeadlessAreaChart,
   type AreaChartProps,
   type AreaChartSeries,
 } from "../../../headless/primitives/AreaChart";

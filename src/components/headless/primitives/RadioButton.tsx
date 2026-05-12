@@ -23,7 +23,7 @@ export interface RadioButtonProps
   readonly value?: string;
 }
 
-export const RadioButton = component<RadioButtonProps>((props) => {
+export const HlRadioButton = component<RadioButtonProps>((props) => {
   const state = createControllableState<boolean>({
     defaultValue: props.defaultChecked ?? false,
     ...(props.checked !== undefined ? { value: props.checked } : {}),

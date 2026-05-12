@@ -9,17 +9,17 @@ importers:
   .:
     dependencies:
       '@ochairo/beat':
-        specifier: ^1.6.0
-        version: 1.6.0
+        specifier: ^1.6.6
+        version: 1.6.6
       '@ochairo/numbers':
-        specifier: ^1.5.0
-        version: 1.5.0
+        specifier: ^1.6.6
+        version: 1.6.6
       '@ochairo/pulse':
-        specifier: ^1.6.0
-        version: 1.6.0
+        specifier: ^1.6.6
+        version: 1.6.6
       '@ochairo/scales':
-        specifier: ^1.5.0
-        version: 1.5.0
+        specifier: ^1.6.6
+        version: 1.6.6
     devDependencies:
       '@types/node':
         specifier: ^20.10.5
@@ -216,20 +216,20 @@ packages:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
 
-  '@ochairo/beat@1.6.0':
-    resolution: {integrity: sha512-S4F7+9wayXX+JFaQfThWF2Nun2n7LP9DcWOwtT8+PRQjl8TABbjh7+EPRPIABt+85ePaaziTx0acRyQPnSrxpA==}
+  '@ochairo/beat@1.6.6':
+    resolution: {integrity: sha512-La9fqYsqHj7M6reR9btHt9xJ3nqdR6CGFGjs5bRVSYuJpiijliOjcAQkY2dW0Ha8gevdIsuesDAYAByEZ9x2aA==}
     engines: {node: '>=20.0.0'}
 
-  '@ochairo/numbers@1.5.0':
-    resolution: {integrity: sha512-5tRMGnO44EVNe23LlwNPShFkQnOC1/I/sRgl5p7OaIjkY/RMkzlbn61l1FXIR1an9iS6c79Sl9jWPY7Kn/1wAg==}
+  '@ochairo/numbers@1.6.6':
+    resolution: {integrity: sha512-FWvNcwbjvjz7F0btQpNTH9XRai0jesQ8zc/UdonYx0xvwljhI6fSB/2+DQ6c8R4LyOLxBVzGN6fyYALx1oX5zg==}
     engines: {node: '>=20.0.0'}
 
-  '@ochairo/pulse@1.6.0':
-    resolution: {integrity: sha512-wP2wVWR5pmgCfMGnhx28OCWW+sxQ208w8Uk2uYsoKTWbXAySzHbJjzg4p+kmDjVIjCJwtGhGOF4BtUWCunE5WA==}
+  '@ochairo/pulse@1.6.6':
+    resolution: {integrity: sha512-snhjTEtlX7jvw9s019Ff9J1ARHqmKLIRCnproYQZEiNIkCSsBtICSozcZe8/zJRIFfBSwaNmk31rdtprQQrobA==}
     engines: {node: '>=20.0.0'}
 
-  '@ochairo/scales@1.5.0':
-    resolution: {integrity: sha512-f5YrFscF40Cdnz/eHFSru3hn1opU0S4NtaXgL3HP8DzHfEOHQoWm4bGKjzwp7RV2ii+myw8fyw0JP22kPbmyvQ==}
+  '@ochairo/scales@1.6.6':
+    resolution: {integrity: sha512-Q00G99FXZPyr56597QMM+nlXyw3ncFWTKjPuqKuz+4agLEGtj1w8B3XXfDPBTbp2/P9nMGvO/WTX9PpDQ0TWRw==}
 
   '@oxc-project/types@0.124.0':
     resolution: {integrity: sha512-VBFWMTBvHxS11Z5Lvlr3IWgrwhMTXV+Md+EQF0Xf60+wAdsGFTBx7X7K/hP4pi8N7dcm1RvcHwDxZ16Qx8keUg==}
@@ -780,15 +780,15 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@ochairo/beat@1.6.0':
+  '@ochairo/beat@1.6.6':
     dependencies:
-      '@ochairo/pulse': 1.6.0
+      '@ochairo/pulse': 1.6.6
 
-  '@ochairo/numbers@1.5.0': {}
+  '@ochairo/numbers@1.6.6': {}
 
-  '@ochairo/pulse@1.6.0': {}
+  '@ochairo/pulse@1.6.6': {}
 
-  '@ochairo/scales@1.5.0': {}
+  '@ochairo/scales@1.6.6': {}
 
   '@oxc-project/types@0.124.0': {}
 

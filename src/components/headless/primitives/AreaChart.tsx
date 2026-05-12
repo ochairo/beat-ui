@@ -37,7 +37,7 @@ const DEFAULT_COLORS = [
   "#a78bfa",
 ];
 
-export const AreaChart = component<AreaChartProps>((props) => {
+export const HlAreaChart = component<AreaChartProps>((props) => {
   const w = props.width ?? 400;
   const h = props.height ?? 240;
   const pad = props.padding ?? 40;

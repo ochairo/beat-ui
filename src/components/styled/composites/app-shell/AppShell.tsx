@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  AppShell as HeadlessAppShell,
+  HlAppShell as HeadlessAppShell,
   type AppShellNavItem,
   type AppShellProps,
   type AppShellSidebarMode,

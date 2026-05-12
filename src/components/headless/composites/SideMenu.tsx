@@ -26,7 +26,7 @@ export interface SideMenuProps
   readonly styles?: SideMenuStyles;
 }
 
-export const SideMenu = component<SideMenuProps>((props) => {
+export const HlSideMenu = component<SideMenuProps>((props) => {
   const state = createControllableState<string>({
     defaultValue: props.defaultValue ?? props.items[0]?.key ?? "",
     ...(props.value !== undefined ? { value: props.value } : {}),

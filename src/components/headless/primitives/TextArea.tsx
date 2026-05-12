@@ -24,7 +24,7 @@ export interface TextAreaProps
   readonly styles?: TextAreaStyles;
 }
 
-export const TextArea = component<TextAreaProps>((props) => {
+export const HlTextArea = component<TextAreaProps>((props) => {
   const state = createControllableState<string>({
     defaultValue: props.defaultValue ?? "",
     ...(props.value !== undefined ? { value: props.value } : {}),

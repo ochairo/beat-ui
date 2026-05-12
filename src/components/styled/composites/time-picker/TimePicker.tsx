@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  TimePicker as HeadlessTimePicker,
+  HlTimePicker as HeadlessTimePicker,
   type TimePickerProps,
 } from "../../../headless/composites/TimePicker";
 import css from "./TimePicker.module.css";

@@ -68,4 +68,22 @@ describe("Dialog", () => {
 
     cleanup();
   });
+
+  it("renders the title in a dedicated title part", () => {
+    const target = document.createElement("div");
+    const open = pulse(true);
+
+    const cleanup = render(
+      target,
+      <Dialog open={open} title="Task details">
+        Body content
+      </Dialog>,
+    );
+
+    const title = target.querySelector('[data-part="title"]');
+
+    expect(title?.textContent).toBe("Task details");
+
+    cleanup();
+  });
 });

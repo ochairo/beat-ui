@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  NumberInput as HeadlessNumberInput,
+  HlNumberInput as HeadlessNumberInput,
   type NumberInputProps,
 } from "../../../headless/composites/NumberInput";
 import { IconChevronUp, IconChevronDown } from "../../../../icons";

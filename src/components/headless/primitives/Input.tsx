@@ -24,6 +24,7 @@ export interface InputProps
   readonly required?: boolean | undefined;
   readonly styles?: InputStyles | undefined;
   readonly type?:
+    | "date"
     | "text"
     | "email"
     | "number"
@@ -34,7 +35,7 @@ export interface InputProps
     | "url";
 }
 
-export const Input = component<InputProps>((props) => {
+export const HlInput = component<InputProps>((props) => {
   const state = createControllableState<string>({
     defaultValue: props.defaultValue ?? "",
     ...(props.value !== undefined ? { value: props.value } : {}),

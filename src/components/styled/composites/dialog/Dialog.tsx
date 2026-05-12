@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Dialog as HeadlessDialog,
+  HlDialog as HeadlessDialog,
   type DialogProps,
   type ModalProps,
 } from "../../../headless/composites/Dialog";

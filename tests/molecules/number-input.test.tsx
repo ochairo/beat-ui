@@ -54,6 +54,72 @@ describe("NumberInput", () => {
     cleanup();
   });
 
+  it("keeps input focus when pressing a stepper button", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const value = pulse("5");
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <NumberInput value={value} onValueChange={(v) => value.set(v)} />
+      </ThemeRoot>,
+    );
+
+    const input = target.querySelector("input") as HTMLInputElement;
+    const increment = target.querySelector(
+      "button[aria-label='Increment']",
+    ) as HTMLButtonElement;
+
+    input.focus();
+
+    const mouseDown = new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+    });
+    increment.dispatchEvent(mouseDown);
+
+    expect(mouseDown.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(input);
+    expect(value.get()).toBe("6");
+
+    document.body.removeChild(target);
+    cleanup();
+  });
+
+  it("updates uncontrolled value on repeated step-button presses", () => {
+    const target = document.createElement("div");
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <NumberInput defaultValue="5" />
+      </ThemeRoot>,
+    );
+
+    const input = target.querySelector("input") as HTMLInputElement;
+    const increment = target.querySelector(
+      "button[aria-label='Increment']",
+    ) as HTMLButtonElement;
+    const firstPress = new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+    });
+    const secondPress = new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    increment.dispatchEvent(firstPress);
+    increment.dispatchEvent(secondPress);
+
+    expect(firstPress.defaultPrevented).toBe(true);
+    expect(secondPress.defaultPrevented).toBe(true);
+    expect(input.value).toBe("7");
+
+    cleanup();
+  });
+
   it("respects min and max bounds", () => {
     const target = document.createElement("div");
     const value = pulse("10");

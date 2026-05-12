@@ -2,7 +2,7 @@ import { component } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 
 import {
-  TimeInput as HeadlessTimeInput,
+  HlTimeInput as HeadlessTimeInput,
   type TimeInputProps,
 } from "../../../headless/composites/TimeInput";
 import { TimePicker } from "../time-picker/TimePicker";

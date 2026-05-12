@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Input as HeadlessInput,
+  HlInput as HeadlessInput,
   type InputProps,
 } from "../../../headless/primitives/Input";
 import css from "./Input.module.css";

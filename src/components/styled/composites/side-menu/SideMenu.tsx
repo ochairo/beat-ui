@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  SideMenu as HeadlessSideMenu,
+  HlSideMenu as HeadlessSideMenu,
   type SideMenuItem,
   type SideMenuProps,
 } from "../../../headless/composites/SideMenu";

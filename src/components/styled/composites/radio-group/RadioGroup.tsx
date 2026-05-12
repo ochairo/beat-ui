@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  RadioGroup as HeadlessRadioGroup,
+  HlRadioGroup as HeadlessRadioGroup,
   type RadioGroupOption,
   type RadioGroupProps,
 } from "../../../headless/composites/RadioGroup";

@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Badge as HeadlessBadge,
+  HlBadge as HeadlessBadge,
   type BadgeProps,
   type BadgeTone,
 } from "../../../headless/primitives/Badge";

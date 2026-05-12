@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Button as HeadlessButton,
+  HlButton as HeadlessButton,
   type ButtonAppearance,
   type ButtonProps,
   type ButtonTone,

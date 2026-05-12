@@ -114,6 +114,103 @@ describe("DateInput", () => {
     cleanup();
   });
 
+  it("keeps input focus when pressing the calendar icon", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DateInput />
+      </ThemeRoot>,
+    );
+
+    const input = target.querySelector(
+      "input[type='text']",
+    ) as HTMLInputElement;
+    const button = target.querySelector(
+      "button[aria-label='Toggle calendar']",
+    ) as HTMLButtonElement;
+    const dialog = target.querySelector("[role='dialog']") as HTMLElement;
+
+    input.focus();
+
+    const mouseDown = new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+    });
+    button.dispatchEvent(mouseDown);
+
+    expect(mouseDown.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(input);
+
+    button.click();
+    expect(dialog.style.display).toBe("");
+
+    document.body.removeChild(target);
+    cleanup();
+  });
+
+  it("positions the calendar as a floating viewport layer when open", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DateInput />
+      </ThemeRoot>,
+    );
+
+    const dialog = target.querySelector(
+      "[data-part='calendar-wrapper']",
+    ) as HTMLElement;
+    const root = dialog.parentElement as HTMLElement;
+    const button = target.querySelector(
+      "button[aria-label='Toggle calendar']",
+    ) as HTMLButtonElement;
+
+    Object.defineProperty(root, "getBoundingClientRect", {
+      configurable: true,
+      value: () =>
+        ({
+          x: 80,
+          y: 100,
+          width: 120,
+          height: 44,
+          top: 100,
+          right: 200,
+          bottom: 144,
+          left: 80,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+    Object.defineProperty(dialog, "getBoundingClientRect", {
+      configurable: true,
+      value: () =>
+        ({
+          x: 0,
+          y: 0,
+          width: 160,
+          height: 180,
+          top: 0,
+          right: 160,
+          bottom: 180,
+          left: 0,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+
+    button.click();
+
+    expect(dialog.style.position).toBe("fixed");
+    expect(dialog.style.top).toBe("148px");
+    expect(dialog.style.left).toBe("80px");
+
+    document.body.removeChild(target);
+    cleanup();
+  });
+
   it("syncs typed value to calendar view (uncontrolled)", () => {
     const target = document.createElement("div");
     document.body.appendChild(target);

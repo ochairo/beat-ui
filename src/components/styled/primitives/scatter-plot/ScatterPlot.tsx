@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  ScatterPlot as HeadlessScatterPlot,
+  HlScatterPlot as HeadlessScatterPlot,
   type ScatterPlotPoint,
   type ScatterPlotProps,
   type ScatterPlotSeries,

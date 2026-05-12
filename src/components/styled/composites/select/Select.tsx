@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Select as HeadlessSelect,
+  HlSelect as HeadlessSelect,
   type DropboxProps,
   type DropdownOption,
   type DropdownProps,

@@ -2,7 +2,7 @@ import { component } from "@ochairo/beat";
 
 import { IconSearch } from "../../../../icons";
 import {
-  SearchInput as HeadlessSearchInput,
+  HlSearchInput as HeadlessSearchInput,
   type SearchInputProps,
 } from "../../../headless/composites/SearchInput";
 import css from "./SearchInput.module.css";

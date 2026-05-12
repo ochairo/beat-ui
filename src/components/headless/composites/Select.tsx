@@ -7,9 +7,18 @@ import {
   type BeatUiControlledValueProps,
   type BeatUiFocusHandlers,
 } from "../../../foundations";
+import {
+  isWithinFloatingLayer,
+  measureFloatingLayerHeight,
+  moveFloatingLayerToHost,
+  positionFloatingLayer,
+  resolveFloatingLayerZIndex,
+  scheduleFloatingLayerMount,
+} from "./floating-layer";
 
 export interface SelectStyles {
   readonly trigger?: string | undefined;
+  readonly triggerLabel?: string | undefined;
   readonly chevron?: string | undefined;
   readonly menu?: string | undefined;
   readonly item?: ((active: boolean, disabled: boolean) => string) | undefined;
@@ -23,6 +32,7 @@ export interface SelectOption {
   readonly disabled?: boolean;
   readonly label: string;
   readonly isSelectable?: boolean;
+  readonly triggerLabel?: string;
   readonly value: string;
 }
 
@@ -154,7 +164,7 @@ const SelectItem = component<SelectItemProps>((props) => {
   );
 });
 
-export const Select = component<SelectProps>((props) => {
+export const HlSelect = component<SelectProps>((props) => {
   const state = createControllableState<string>({
     defaultValue: props.defaultValue ?? "",
     ...(props.value !== undefined ? { value: props.value } : {}),
@@ -167,8 +177,40 @@ export const Select = component<SelectProps>((props) => {
   const highlightedIndex = pulse(-1);
   const expandedKeys = pulse<readonly string[]>([]);
   let triggerEl: HTMLButtonElement | null = null;
+  let dropdownEl: HTMLDivElement | null = null;
   let menuEl: HTMLDivElement | null = null;
   let inputEl: HTMLInputElement | null = null;
+  let cleanupDropdownMount: (() => void) | null = null;
+  let cleanupDropdownTracking: (() => void) | null = null;
+
+  function updateDropdownPosition(): void {
+    if (!triggerEl || !dropdownEl) return;
+    positionFloatingLayer({
+      anchor: triggerEl,
+      layer: dropdownEl,
+      matchAnchorWidth: true,
+      height: measureFloatingLayerHeight(dropdownEl, menuEl),
+    });
+  }
+
+  function stopDropdownTracking(): void {
+    cleanupDropdownTracking?.();
+    cleanupDropdownTracking = null;
+  }
+
+  function startDropdownTracking(): void {
+    if (cleanupDropdownTracking !== null) return;
+    const handleViewportChange = (): void => {
+      if (!isOpen.get()) return;
+      updateDropdownPosition();
+    };
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange, true);
+    cleanupDropdownTracking = () => {
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("scroll", handleViewportChange, true);
+    };
+  }
 
   function flattenOptions(
     options: readonly SelectOption[],
@@ -199,11 +241,19 @@ export const Select = component<SelectProps>((props) => {
   }
 
   function currentLabel(): string {
+    const selectedOption = currentOption();
+
     return (
-      allOptionsFlat(props.options).find((o) => o.value === state.state.get())
-        ?.label ??
+      selectedOption?.triggerLabel ??
+      selectedOption?.label ??
       props.placeholder ??
       ""
+    );
+  }
+
+  function currentOption(): SelectOption | undefined {
+    return allOptionsFlat(props.options).find(
+      (option) => option.value === state.state.get(),
     );
   }
 
@@ -286,6 +336,11 @@ export const Select = component<SelectProps>((props) => {
         itemCleanups.push(r.cleanup);
       }
     }
+    if (isOpen.get()) {
+      queueMicrotask(() => {
+        if (isOpen.get()) updateDropdownPosition();
+      });
+    }
   }
 
   onCleanup(expandedKeys.on(() => renderItems()));
@@ -330,12 +385,7 @@ export const Select = component<SelectProps>((props) => {
 
   function onDocMouseDown(e: MouseEvent): void {
     const t = e.target as Node;
-    if (
-      !triggerEl?.contains(t) &&
-      !menuEl?.contains(t) &&
-      !inputEl?.contains(t)
-    )
-      closeMenu();
+    if (!isWithinFloatingLayer(t, triggerEl, dropdownEl)) closeMenu();
   }
 
   onCleanup(
@@ -344,10 +394,21 @@ export const Select = component<SelectProps>((props) => {
         document.addEventListener("mousedown", onDocMouseDown);
       } else {
         document.removeEventListener("mousedown", onDocMouseDown);
+        cleanupDropdownMount?.();
+        cleanupDropdownMount = null;
+        dropdownEl = null;
+        menuEl = null;
+        inputEl = null;
+        stopDropdownTracking();
       }
     }),
   );
   onCleanup(() => document.removeEventListener("mousedown", onDocMouseDown));
+  onCleanup(() => {
+    cleanupDropdownMount?.();
+    cleanupDropdownMount = null;
+    stopDropdownTracking();
+  });
 
   function onTriggerKeyDown(e: KeyboardEvent): void {
     if (["Enter", " ", "ArrowDown", "ArrowUp"].includes(e.key)) {
@@ -413,7 +474,10 @@ export const Select = component<SelectProps>((props) => {
   }
 
   return (
-    <div class={props.class} style="position:relative;width:100%">
+    <div
+      class={props.class}
+      style="position:relative;display:block;width:100%;height:100%"
+    >
       <button
         id={props.id}
         type="button"
@@ -433,10 +497,14 @@ export const Select = component<SelectProps>((props) => {
         onBlur={(e: FocusEvent) => {
           const rel = (e as FocusEvent & { relatedTarget: Node | null })
             .relatedTarget;
-          if (!menuEl?.contains(rel) && rel !== inputEl) props.onBlur?.(e);
+          if (!isWithinFloatingLayer(rel, triggerEl, dropdownEl)) {
+            props.onBlur?.(e);
+          }
         }}
       >
-        <span>{triggerLabel}</span>
+        <span data-part="trigger-label" style={props.styles?.triggerLabel}>
+          {triggerLabel}
+        </span>
         <span
           data-part="chevron"
           style={props.styles?.chevron}
@@ -457,7 +525,25 @@ export const Select = component<SelectProps>((props) => {
       </button>
       <Show when={isOpen}>
         {() => (
-          <div data-part="dropdown">
+          <div
+            data-part="dropdown"
+            data-beat-ui-select-popup="true"
+            ref={(el) => {
+              const htmlEl = el as HTMLDivElement;
+              dropdownEl = htmlEl;
+              if (htmlEl.style.zIndex === "") {
+                htmlEl.style.zIndex = resolveFloatingLayerZIndex(triggerEl);
+              }
+              cleanupDropdownMount?.();
+              cleanupDropdownMount = scheduleFloatingLayerMount(htmlEl);
+              startDropdownTracking();
+              queueMicrotask(() => {
+                if (dropdownEl !== htmlEl || !isOpen.get()) return;
+                moveFloatingLayerToHost(htmlEl);
+                updateDropdownPosition();
+              });
+            }}
+          >
             {props.canSearch ? (
               <input
                 type="text"
@@ -494,6 +580,6 @@ export const Select = component<SelectProps>((props) => {
 });
 
 /** @deprecated Use Select */
-export const Dropdown = Select;
+export const HlDropdown = HlSelect;
 /** @deprecated Use Select */
-export const Dropbox = Select;
+export const HlDropbox = HlSelect;

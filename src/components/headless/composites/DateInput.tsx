@@ -8,6 +8,14 @@ import {
   type BeatUiFocusHandlers,
 } from "../../../foundations";
 import type { BeatUiRenderable } from "../../../runtime";
+import {
+  isWithinFloatingLayer,
+  moveFloatingLayerToHost,
+  positionFloatingLayer,
+  resolveFloatingHorizontalAlign,
+  resolveFloatingLayerZIndex,
+  scheduleFloatingLayerMount,
+} from "./floating-layer";
 
 export interface DateInputStyles {
   readonly root?: string;
@@ -203,14 +211,19 @@ function cursorAfterFill(
   return formatLength;
 }
 
-export const DateInput = component<DateInputProps>((props) => {
+export const HlDateInput = component<DateInputProps>((props) => {
   const format = props.format ?? DEFAULT_FORMAT;
   const slotPositions = buildSlotPositions(format);
   const slotCount = slotPositions.length;
   const meta = buildSlotMeta(format, slotPositions);
+  const calendarAlign = resolveFloatingHorizontalAlign(
+    props.styles?.calendarWrapper,
+  );
 
   const isOpen = pulse(false);
   let rootEl: HTMLDivElement | null = null;
+  let calendarWrapperEl: HTMLElement | null = null;
+  let cleanupCalendarTracking: (() => void) | null = null;
   const slots: (string | null)[] = Array.from<string | null>({
     length: slotCount,
   }).fill(null);
@@ -229,6 +242,34 @@ export const DateInput = component<DateInputProps>((props) => {
   for (let i = 0; i < slotCount; i++) slots[i] = initial[i]!;
 
   let syncingFromSlots = false;
+
+  function updateCalendarPosition(): void {
+    if (!rootEl || !calendarWrapperEl) return;
+    positionFloatingLayer({
+      anchor: rootEl,
+      layer: calendarWrapperEl,
+      align: calendarAlign,
+    });
+  }
+
+  function stopCalendarTracking(): void {
+    cleanupCalendarTracking?.();
+    cleanupCalendarTracking = null;
+  }
+
+  function startCalendarTracking(): void {
+    if (cleanupCalendarTracking !== null) return;
+    const handleViewportChange = (): void => {
+      if (!isOpen.get()) return;
+      updateCalendarPosition();
+    };
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange, true);
+    cleanupCalendarTracking = () => {
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("scroll", handleViewportChange, true);
+    };
+  }
 
   function syncFromSlots(event?: Event): void {
     syncingFromSlots = true;
@@ -258,7 +299,13 @@ export const DateInput = component<DateInputProps>((props) => {
   }
 
   function handleDocumentClick(event: MouseEvent): void {
-    if (rootEl && !rootEl.contains(event.target as Node)) {
+    if (
+      !isWithinFloatingLayer(
+        event.target as Node | null,
+        rootEl,
+        calendarWrapperEl,
+      )
+    ) {
       isOpen.set(false);
     }
   }
@@ -388,6 +435,7 @@ export const DateInput = component<DateInputProps>((props) => {
         rootEl = el as HTMLDivElement;
         document.addEventListener("click", handleDocumentClick, true);
         onCleanup(() => {
+          stopCalendarTracking();
           document.removeEventListener("click", handleDocumentClick, true);
         });
       }}
@@ -397,7 +445,7 @@ export const DateInput = component<DateInputProps>((props) => {
         data-invalid={props.invalid}
         style={props.styles?.inputWrapper}
       >
-        <div style="position:relative;flex:1;min-width:0">
+        <div style="position:relative;flex:1;min-width:0;align-self:stretch;height:100%">
           <input
             type="text"
             data-part="input"
@@ -419,7 +467,13 @@ export const DateInput = component<DateInputProps>((props) => {
             onInput={handleInput}
             onKeyDown={handleKeyDown}
             onFocus={props.onFocus}
-            onBlur={props.onBlur}
+            onBlur={(event: FocusEvent) => {
+              const rel = (event as FocusEvent & { relatedTarget: Node | null })
+                .relatedTarget;
+              if (!isWithinFloatingLayer(rel, rootEl, calendarWrapperEl)) {
+                props.onBlur?.(event);
+              }
+            }}
           />
           <div
             data-part="input-overlay"
@@ -459,6 +513,7 @@ export const DateInput = component<DateInputProps>((props) => {
           disabled={props.disabled}
           aria-label="Toggle calendar"
           style={props.styles?.iconButton}
+          onMouseDown={(event: MouseEvent) => event.preventDefault()}
           onClick={toggleCalendar}
         >
           {props.icon}
@@ -466,14 +521,38 @@ export const DateInput = component<DateInputProps>((props) => {
       </div>
       <div
         data-part="calendar-wrapper"
+        data-beat-ui-date-input-popup="true"
         role="dialog"
         style={props.styles?.calendarWrapper}
         ref={(el) => {
           const htmlEl = el as HTMLElement;
+          calendarWrapperEl = htmlEl;
           htmlEl.style.display = "none";
-          isOpen.on(({ currentValue }) => {
-            htmlEl.style.display = currentValue ? "" : "none";
+          if (htmlEl.style.zIndex === "") {
+            htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
+          }
+          onCleanup(() => {
+            if (calendarWrapperEl === htmlEl) {
+              calendarWrapperEl = null;
+            }
           });
+          onCleanup(scheduleFloatingLayerMount(htmlEl));
+          onCleanup(
+            isOpen.on(({ currentValue }) => {
+              htmlEl.style.display = currentValue ? "" : "none";
+              if (currentValue) {
+                htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
+                moveFloatingLayerToHost(htmlEl);
+                startCalendarTracking();
+                updateCalendarPosition();
+                requestAnimationFrame(() => {
+                  if (isOpen.get()) updateCalendarPosition();
+                });
+                return;
+              }
+              stopCalendarTracking();
+            }),
+          );
         }}
       >
         {props.calendar}

@@ -1,17 +1,19 @@
-export { AppShell } from "./AppShell";
-export { DatePicker } from "./DatePicker";
-export { DateInput } from "./DateInput";
-export { Dialog, Modal } from "./Dialog";
-export { Dropdown, Dropbox, Select } from "./Select";
-export { MultiSelect } from "./MultiSelect";
-export { Notification } from "./Notification";
-export { NumberInput } from "./NumberInput";
-export { RadioGroup } from "./RadioGroup";
-export { SideMenu } from "./SideMenu";
-export { Tab } from "./Tab";
-export { TextInput } from "./TextInput";
-export { TimeInput } from "./TimeInput";
-export { TimePicker } from "./TimePicker";
+export { HlAppShell } from "./AppShell";
+export { HlDatePicker } from "./DatePicker";
+export { HlDateInput } from "./DateInput";
+export { HlDialog, HlModal } from "./Dialog";
+export { HlPopover } from "./Popover";
+export { HlDropdown, HlDropbox, HlSelect } from "./Select";
+export { HlMultiSelect } from "./MultiSelect";
+export { HlNotification } from "./Notification";
+export { HlNumberInput } from "./NumberInput";
+export { HlRadioGroup } from "./RadioGroup";
+export { HlSearchInput } from "./SearchInput";
+export { HlSideMenu } from "./SideMenu";
+export { HlTab } from "./Tab";
+export { HlTextInput } from "./TextInput";
+export { HlTimeInput } from "./TimeInput";
+export { HlTimePicker } from "./TimePicker";
 
 export type {
   AppShellNavItem,
@@ -22,6 +24,7 @@ export type {
 export type { DatePickerProps, DatePickerStyles } from "./DatePicker";
 export type { DateInputProps, DateInputStyles } from "./DateInput";
 export type { DialogProps, DialogStyles, ModalProps } from "./Dialog";
+export type { PopoverPlacement, PopoverProps } from "./Popover";
 export type {
   DropdownOption,
   DropdownProps,

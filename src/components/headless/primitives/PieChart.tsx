@@ -78,7 +78,7 @@ function slicePath(
   ].join(" ");
 }
 
-export const PieChart = component<PieChartProps>((props) => {
+export const HlPieChart = component<PieChartProps>((props) => {
   const size = props.size ?? 200;
   const totalH = props.showLegend !== false ? size + 40 : size;
   const cx = size / 2;

@@ -21,7 +21,7 @@ export interface CardProps
   readonly styles?: CardStyles;
 }
 
-export const Card = component<CardProps>((props) => {
+export const HlCard = component<CardProps>((props) => {
   const tag = props.as ?? "div";
 
   const attrs: Record<string, unknown> = {

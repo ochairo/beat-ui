@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  BarChart as HeadlessBarChart,
+  HlBarChart as HeadlessBarChart,
   type BarChartProps,
   type BarChartSeries,
 } from "../../../headless/primitives/BarChart";

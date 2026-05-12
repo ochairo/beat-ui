@@ -56,6 +56,103 @@ describe("TimeInput", () => {
     cleanup();
   });
 
+  it("keeps input focus when pressing the time picker icon", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <TimeInput />
+      </ThemeRoot>,
+    );
+
+    const input = target.querySelector(
+      "input[type='text']",
+    ) as HTMLInputElement;
+    const button = target.querySelector(
+      "button[aria-label='Toggle time picker']",
+    ) as HTMLButtonElement;
+    const dialog = target.querySelector("[role='dialog']") as HTMLElement;
+
+    input.focus();
+
+    const mouseDown = new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+    });
+    button.dispatchEvent(mouseDown);
+
+    expect(mouseDown.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(input);
+
+    button.click();
+    expect(dialog.style.display).toBe("");
+
+    document.body.removeChild(target);
+    cleanup();
+  });
+
+  it("positions the time picker as a floating viewport layer and honors end alignment", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <TimeInput styles={{ pickerWrapper: "right:0" }} />
+      </ThemeRoot>,
+    );
+
+    const dialog = target.querySelector(
+      "[data-part='picker-wrapper']",
+    ) as HTMLElement;
+    const root = dialog.parentElement as HTMLElement;
+    const button = target.querySelector(
+      "button[aria-label='Toggle time picker']",
+    ) as HTMLButtonElement;
+
+    Object.defineProperty(root, "getBoundingClientRect", {
+      configurable: true,
+      value: () =>
+        ({
+          x: 300,
+          y: 156,
+          width: 120,
+          height: 44,
+          top: 156,
+          right: 420,
+          bottom: 200,
+          left: 300,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+    Object.defineProperty(dialog, "getBoundingClientRect", {
+      configurable: true,
+      value: () =>
+        ({
+          x: 0,
+          y: 0,
+          width: 160,
+          height: 200,
+          top: 0,
+          right: 160,
+          bottom: 200,
+          left: 0,
+          toJSON: () => ({}),
+        }) as DOMRect,
+    });
+
+    button.click();
+
+    expect(dialog.style.position).toBe("fixed");
+    expect(dialog.style.top).toBe("204px");
+    expect(dialog.style.left).toBe("260px");
+
+    document.body.removeChild(target);
+    cleanup();
+  });
+
   it("formats digits as HH:MM while typing", () => {
     const target = document.createElement("div");
     document.body.appendChild(target);

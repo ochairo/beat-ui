@@ -1,8 +1,10 @@
-import { component, onCleanup } from "@ochairo/beat";
-import { derived, pulse } from "@ochairo/pulse";
+import { component } from "@ochairo/beat";
+import { derived } from "@ochairo/pulse";
 import { scaleLinear } from "@ochairo/scales";
 
-import type { BeatUiState } from "../../../runtime";
+import type { BeatUiReadonlyState } from "../../../runtime";
+
+const PULSE_BRAND = Symbol.for("@ochairo/pulse.brand");
 
 export interface SparklineStyles {
   readonly root?: string;
@@ -11,49 +13,80 @@ export interface SparklineStyles {
 export interface SparklineProps {
   readonly class?: string;
   readonly height?: number;
-  readonly stroke?: BeatUiState<string>;
+  readonly stroke?: BeatUiReadonlyState<string> | string;
   readonly styles?: SparklineStyles;
-  readonly values: BeatUiState<readonly number[]>;
+  readonly values: BeatUiReadonlyState<readonly number[]> | readonly number[];
   readonly width?: number;
+}
+
+function isReadonlyState<TValue>(
+  value: BeatUiReadonlyState<TValue> | TValue | undefined,
+): value is BeatUiReadonlyState<TValue> {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const maybeState = value as {
+    readonly [PULSE_BRAND]?: unknown;
+    readonly get?: unknown;
+    readonly on?: unknown;
+  };
+
+  return (
+    maybeState[PULSE_BRAND] === true &&
+    typeof maybeState.get === "function" &&
+    typeof maybeState.on === "function"
+  );
 }
 
 const PADDING = 4;
 
 function buildPath(values: readonly number[], w: number, h: number): string {
-  if (values.length < 2) return "";
+  const length = values.length;
+  if (length < 2) {
+    return "";
+  }
 
-  const min = Math.min(...values);
-  const max = Math.max(...values);
+  let min = values[0] ?? 0;
+  let max = min;
+  for (let index = 1; index < length; index += 1) {
+    const value = values[index] ?? 0;
+    if (value < min) {
+      min = value;
+    }
+    if (value > max) {
+      max = value;
+    }
+  }
+
   const spread = max - min === 0 ? Math.abs(max) * 0.1 || 1 : (max - min) * 0.1;
+  const domainMin = min - spread;
+  const domainMax = max + spread;
+  const innerHeight = h - PADDING * 2;
+  const xScale = scaleLinear([0, length - 1], [PADDING, w - PADDING]);
+  const yRatio = innerHeight / (domainMax - domainMin || 1);
 
-  const xScale = scaleLinear([0, values.length - 1], [PADDING, w - PADDING]);
-  const yScale = scaleLinear(
-    [min - spread, max + spread],
-    [h - PADDING, PADDING],
-  );
+  let path = "";
+  for (let index = 0; index < length; index += 1) {
+    const value = values[index] ?? 0;
+    const x = length === 1 ? PADDING : xScale(index);
+    const y = h - PADDING - (value - domainMin) * yRatio;
+    path += `${index === 0 ? "M" : " L"}${x.toFixed(1)},${y.toFixed(1)}`;
+  }
 
-  return values
-    .map(
-      (v, i) =>
-        `${i === 0 ? "M" : "L"}${xScale(i).toFixed(1)},${yScale(v).toFixed(1)}`,
-    )
-    .join(" ");
+  return path;
 }
 
-export const Sparkline = component<SparklineProps>((props) => {
+export const HlSparkline = component<SparklineProps>((props) => {
   const w = props.width ?? 120;
   const h = props.height ?? 32;
 
-  const d = derived(props.values, (v) => buildPath(v, w, h));
-  const strokeColor = pulse(props.stroke?.get() ?? "currentColor");
-
-  if (props.stroke !== undefined) {
-    onCleanup(
-      props.stroke.on((event) => {
-        strokeColor.set(event.currentValue);
-      }),
-    );
-  }
+  const d = isReadonlyState(props.values)
+    ? derived(props.values, (v) => buildPath(v, w, h))
+    : buildPath(props.values, w, h);
+  const stroke = isReadonlyState(props.stroke)
+    ? props.stroke
+    : (props.stroke ?? "currentColor");
 
   const widthAttr = props.width !== undefined ? String(props.width) : undefined;
   const widthStyle = props.width === undefined ? "width:100%" : undefined;
@@ -75,7 +108,7 @@ export const Sparkline = component<SparklineProps>((props) => {
         stroke-linecap="round"
         stroke-linejoin="round"
         d={d}
-        stroke={strokeColor}
+        stroke={stroke}
       />
     </svg>
   );

@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  MultiSelect as HeadlessMultiSelect,
+  HlMultiSelect as HeadlessMultiSelect,
   type MultiSelectOption,
   type MultiSelectProps,
 } from "../../../headless/composites/MultiSelect";

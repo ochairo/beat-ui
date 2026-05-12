@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  Switch as HeadlessSwitch,
+  HlSwitch as HeadlessSwitch,
   type SwitchProps,
 } from "../../../headless/primitives/Switch";
 import css from "./Switch.module.css";

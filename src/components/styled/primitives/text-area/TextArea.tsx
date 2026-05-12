@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  TextArea as HeadlessTextArea,
+  HlTextArea as HeadlessTextArea,
   type TextAreaProps,
 } from "../../../headless/primitives/TextArea";
 import css from "./TextArea.module.css";

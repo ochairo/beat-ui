@@ -52,7 +52,14 @@
   margin: 0;
   border: none;
   background: transparent;
-  font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
+  font-family: var(
+    --beat-ui-font-family-mono,
+    "SF Mono",
+    SFMono-Regular,
+    ui-monospace,
+    Menlo,
+    monospace
+  );
   font-size: 0.8rem;
   line-height: 1.55;
   white-space: pre;
@@ -81,7 +88,14 @@
 
 .root [data-part="line-number"] {
   padding: 0 0.75rem;
-  font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
+  font-family: var(
+    --beat-ui-font-family-mono,
+    "SF Mono",
+    SFMono-Regular,
+    ui-monospace,
+    Menlo,
+    monospace
+  );
   font-size: 0.8rem;
   line-height: 1.55;
   color: var(--beat-ui-color-text-muted);
@@ -97,7 +111,14 @@
   resize: none;
   background: transparent;
   color: var(--beat-ui-color-text);
-  font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
+  font-family: var(
+    --beat-ui-font-family-mono,
+    "SF Mono",
+    SFMono-Regular,
+    ui-monospace,
+    Menlo,
+    monospace
+  );
   font-size: 0.8rem;
   line-height: 1.55;
   white-space: pre;

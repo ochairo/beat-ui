@@ -41,7 +41,7 @@ const DEFAULT_COLORS = [
   "#f472b6",
 ];
 
-export const BarChart = component<BarChartProps>((props) => {
+export const HlBarChart = component<BarChartProps>((props) => {
   const w = props.width ?? 400;
   const h = props.height ?? 240;
   const pad = props.padding ?? 40;

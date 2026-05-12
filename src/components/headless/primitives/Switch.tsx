@@ -30,7 +30,7 @@ export interface SwitchProps
   readonly uncheckedIcon?: BeatUiRenderable;
 }
 
-export const Switch = component<SwitchProps>((props) => {
+export const HlSwitch = component<SwitchProps>((props) => {
   const state = createControllableState<boolean>({
     defaultValue: props.defaultChecked ?? false,
     ...(props.checked !== undefined ? { value: props.checked } : {}),

@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  RadioButton as HeadlessRadioButton,
+  HlRadioButton as HeadlessRadioButton,
   type RadioButtonProps,
 } from "../../../headless/primitives/RadioButton";
 import css from "./RadioButton.module.css";

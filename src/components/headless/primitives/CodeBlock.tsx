@@ -39,7 +39,7 @@ function buildLineNumbers(code: string): readonly number[] {
   return nums;
 }
 
-export const CodeBlock = component<CodeBlockProps>((props): BeatJsxChild => {
+export const HlCodeBlock = component<CodeBlockProps>((props): BeatJsxChild => {
   const copyLabel = pulse("Copy");
   const lineNums = pulse<readonly number[]>(buildLineNumbers(props.code.get()));
 

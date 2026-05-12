@@ -89,7 +89,7 @@ const MONTH_NAMES = [
   "December",
 ] as const;
 
-export const DatePicker = component<DatePickerProps>((props) => {
+export const HlDatePicker = component<DatePickerProps>((props) => {
   const state = createControllableState<string>({
     defaultValue: props.defaultValue ?? "",
     ...(props.value !== undefined ? { value: props.value } : {}),

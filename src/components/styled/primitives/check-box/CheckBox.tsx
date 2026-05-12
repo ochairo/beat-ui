@@ -1,7 +1,7 @@
 import { component } from "@ochairo/beat";
 
 import {
-  CheckBox as HeadlessCheckBox,
+  HlCheckBox as HeadlessCheckBox,
   type CheckBoxProps,
 } from "../../../headless/primitives/CheckBox";
 import css from "./CheckBox.module.css";

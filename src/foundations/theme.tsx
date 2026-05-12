@@ -419,7 +419,7 @@ export const ThemeRoot = component<ThemeRootProps>((props) => {
   };
 
   return (
-    <div id={props.id} class={props.class} ref={ref}>
+    <div id={props.id} class={props.class} data-beat-ui-root="true" ref={ref}>
       {props.children}
     </div>
   );
