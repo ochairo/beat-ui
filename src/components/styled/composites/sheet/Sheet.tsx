@@ -583,9 +583,217 @@ const SheetImpl = <Row,>(props: SheetProps<Row>): BeatJsxChild => {
   const stickyHeader = props.stickyHeader !== false;
   const viewportVersion = pulse(0);
   const virtualizeRows = props.virtualizeRows === true;
-  let viewportElement: HTMLDivElement | null = null;
+  const useSplitHeaderViewport = stickyHeader;
+  const rootDataAttributes = mergeDataAttributes({
+    "data-sticky-header": stickyHeader ? "true" : undefined,
+    "data-sticky-columns": stickyColumnCount,
+  });
+  let bodyViewportElement: HTMLDivElement | null = null;
+  let headerViewportElement: HTMLDivElement | null = null;
+  let cleanupViewportBindings: (() => void) | null = null;
 
-  const getViewportElement = (): HTMLElement | null => viewportElement;
+  const getViewportElement = (): HTMLElement | null => bodyViewportElement;
+
+  const syncHeaderViewport = (): void => {
+    if (!stickyHeader) {
+      return;
+    }
+
+    const headerViewport = headerViewportElement;
+    const bodyViewport = bodyViewportElement;
+    if (headerViewport === null || bodyViewport === null) {
+      return;
+    }
+
+    if (headerViewport.scrollLeft !== bodyViewport.scrollLeft) {
+      headerViewport.scrollLeft = bodyViewport.scrollLeft;
+    }
+
+    headerViewport.style.setProperty(
+      "--beat-ui-sheet-scrollbar-gutter",
+      `${Math.max(bodyViewport.offsetWidth - bodyViewport.clientWidth, 0)}px`,
+    );
+  };
+
+  const bindBodyViewport = (element: HTMLDivElement): void => {
+    cleanupViewportBindings?.();
+    bodyViewportElement = element;
+
+    const handleScroll = (): void => {
+      syncHeaderViewport();
+    };
+
+    const resizeObserver =
+      typeof ResizeObserver === "function"
+        ? new ResizeObserver(() => {
+            syncHeaderViewport();
+          })
+        : null;
+
+    element.addEventListener("scroll", handleScroll, { passive: true });
+    resizeObserver?.observe(element);
+
+    const rootElement = element.firstElementChild;
+    if (rootElement instanceof HTMLElement) {
+      resizeObserver?.observe(rootElement);
+    }
+
+    queueMicrotask(() => {
+      if (bodyViewportElement !== element) {
+        return;
+      }
+
+      viewportVersion.set(viewportVersion.get() + 1);
+      syncHeaderViewport();
+    });
+
+    cleanupViewportBindings = () => {
+      element.removeEventListener("scroll", handleScroll);
+      resizeObserver?.disconnect();
+
+      if (bodyViewportElement === element) {
+        bodyViewportElement = null;
+      }
+    };
+  };
+
+  onCleanup(() => {
+    cleanupViewportBindings?.();
+  });
+
+  const headerSection = (
+    <HeadlessSheetHeader
+      class={joinClasses(
+        stickyHeader
+          ? useSplitHeaderViewport
+            ? css["splitHeader"]!
+            : css["header"]!
+          : undefined,
+        props.classNames?.header,
+      )}
+      dataAttributes={{
+        "data-sticky-top": stickyHeader ? "true" : undefined,
+      }}
+      style={props.styles?.header}
+    >
+      <HeadlessSheetRow
+        class={joinClasses(props.classNames?.row, props.classNames?.headerRow)}
+        style={joinStyles(props.styles?.row, props.styles?.headerRow)}
+      >
+        {props.columns.map((column, columnIndex) => {
+          const stickyLeft = resolveStickyLeft(
+            props.columns,
+            stickyColumnCount,
+            columnIndex,
+          );
+          const stickyContext = createStickyContext(stickyHeader, stickyLeft);
+          const headerContext: SheetHeaderCellContext<Row> = {
+            column,
+            columnId: column.id,
+            columnIndex,
+            isSelected: controller.isColumnHeaderSelected(columnIndex),
+            ...stickyContext,
+          };
+          const resolvedProps = props.getHeaderCellProps?.(headerContext);
+
+          return (
+            <HeadlessSheetColumnHeader
+              class={joinClasses(
+                props.classNames?.headerCell,
+                stickyContext.isStickyTop
+                  ? props.classNames?.stickyHeaderCell
+                  : undefined,
+                stickyContext.isStickyLeft
+                  ? props.classNames?.stickyColumnCell
+                  : undefined,
+                stickyContext.isCorner
+                  ? props.classNames?.stickyCornerCell
+                  : undefined,
+                resolvedProps?.class,
+              )}
+              columnIndex={columnIndex}
+              dataAttributes={mergeDataAttributes(
+                {
+                  "data-column-id": column.id,
+                  "data-column-index": columnIndex,
+                  "data-sticky-top": stickyContext.isStickyTop
+                    ? "true"
+                    : undefined,
+                  "data-sticky-left": stickyContext.isStickyLeft
+                    ? "true"
+                    : undefined,
+                  "data-sticky-corner": stickyContext.isCorner
+                    ? "true"
+                    : undefined,
+                },
+                resolvedProps?.dataAttributes,
+              )}
+              style={resolveResolvedPropsStyle(
+                joinStyles(
+                  props.styles?.headerCell,
+                  stickyContext.isStickyTop
+                    ? props.styles?.stickyHeaderCell
+                    : undefined,
+                  stickyContext.isStickyLeft
+                    ? props.styles?.stickyColumnCell
+                    : undefined,
+                  stickyContext.isCorner
+                    ? props.styles?.stickyCornerCell
+                    : undefined,
+                  createHeaderCellStyle(column.width, stickyLeft),
+                ),
+                resolvedProps,
+              )}
+              title={resolveResolvedPropsTitle(resolvedProps)}
+            >
+              {column.title}
+            </HeadlessSheetColumnHeader>
+          );
+        })}
+      </HeadlessSheetRow>
+    </HeadlessSheetHeader>
+  );
+
+  const bodySection = (
+    <HeadlessSheetBody
+      class={props.classNames?.body}
+      style={props.styles?.body}
+    >
+      {props.rows.map((row, rowIndex) => {
+        const rowId = resolveRowId(row, rowIndex, props.getRowId);
+        const rowContext: SheetRowContext<Row> = {
+          row,
+          rowId,
+          rowIndex,
+        };
+        const rowResolvedProps = props.getRowProps?.(rowContext);
+
+        return (
+          <SheetBodyRow
+            classNames={props.classNames}
+            columns={props.columns}
+            controller={controller}
+            editValueBehavior={props.editValueBehavior}
+            getCellProps={props.getCellProps}
+            getViewportElement={getViewportElement}
+            minRowHeight={minRowHeight}
+            renderCell={props.renderCell}
+            row={row}
+            rowCount={props.rows.length}
+            rowId={rowId}
+            rowIndex={rowIndex}
+            rowResolvedProps={rowResolvedProps}
+            rowVirtualizationOverscan={rowVirtualizationOverscan}
+            rowVirtualizationRootMargin={rowVirtualizationRootMargin}
+            stickyColumnCount={stickyColumnCount}
+            styles={props.styles}
+            viewportVersion={viewportVersion}
+            virtualizeRows={virtualizeRows}
+          />
+        );
+      })}
+    </HeadlessSheetBody>
+  );
 
   return (
     <div
@@ -596,166 +804,86 @@ const SheetImpl = <Row,>(props: SheetProps<Row>): BeatJsxChild => {
         props.style,
       )}
     >
-      <div
-        class={joinClasses(css["viewport"]!, props.classNames?.viewport)}
-        ref={(element) => {
-          if (!(element instanceof HTMLDivElement)) {
-            return;
-          }
+      {useSplitHeaderViewport ? (
+        <>
+          <div
+            class={css["headerViewport"]!}
+            data-sheet-header-viewport="true"
+            ref={(element) => {
+              if (!(element instanceof HTMLDivElement)) {
+                return;
+              }
 
-          viewportElement = element;
-          queueMicrotask(() => {
-            if (viewportElement === element) {
-              viewportVersion.set(viewportVersion.get() + 1);
-            }
-          });
-        }}
-        style={props.styles?.viewport}
-      >
-        <HeadlessSheetRoot
-          controller={controller}
-          class={joinClasses(css["root"]!, props.classNames?.root)}
-          ariaLabel={props.ariaLabel}
-          ariaLabelledby={props.ariaLabelledby}
-          ariaDescribedby={props.ariaDescribedby}
-          dataAttributes={mergeDataAttributes({
-            "data-sticky-header": stickyHeader ? "true" : undefined,
-            "data-sticky-columns": stickyColumnCount,
-          })}
-          style={props.styles?.root}
-        >
-          <HeadlessSheetHeader
-            class={joinClasses(
-              stickyHeader ? css["header"]! : undefined,
-              props.classNames?.header,
-            )}
-            dataAttributes={{
-              "data-sticky-top": stickyHeader ? "true" : undefined,
+              headerViewportElement = element;
+              queueMicrotask(() => {
+                if (headerViewportElement === element) {
+                  syncHeaderViewport();
+                }
+              });
             }}
-            style={props.styles?.header}
           >
-            <HeadlessSheetRow
-              class={joinClasses(
-                props.classNames?.row,
-                props.classNames?.headerRow,
-              )}
-              style={joinStyles(props.styles?.row, props.styles?.headerRow)}
+            <HeadlessSheetRoot
+              controller={controller}
+              role="presentation"
+              class={joinClasses(css["root"]!, props.classNames?.root)}
+              dataAttributes={rootDataAttributes}
+              style={props.styles?.root}
             >
-              {props.columns.map((column, columnIndex) => {
-                const stickyLeft = resolveStickyLeft(
-                  props.columns,
-                  stickyColumnCount,
-                  columnIndex,
-                );
-                const stickyContext = createStickyContext(
-                  stickyHeader,
-                  stickyLeft,
-                );
-                const headerContext: SheetHeaderCellContext<Row> = {
-                  column,
-                  columnId: column.id,
-                  columnIndex,
-                  isSelected: controller.isColumnHeaderSelected(columnIndex),
-                  ...stickyContext,
-                };
-                const resolvedProps = props.getHeaderCellProps?.(headerContext);
+              {headerSection}
+            </HeadlessSheetRoot>
+          </div>
+          <div
+            class={joinClasses(css["viewport"]!, props.classNames?.viewport)}
+            data-sheet-body-viewport="true"
+            ref={(element) => {
+              if (!(element instanceof HTMLDivElement)) {
+                return;
+              }
 
-                return (
-                  <HeadlessSheetColumnHeader
-                    class={joinClasses(
-                      props.classNames?.headerCell,
-                      stickyContext.isStickyTop
-                        ? props.classNames?.stickyHeaderCell
-                        : undefined,
-                      stickyContext.isStickyLeft
-                        ? props.classNames?.stickyColumnCell
-                        : undefined,
-                      stickyContext.isCorner
-                        ? props.classNames?.stickyCornerCell
-                        : undefined,
-                      resolvedProps?.class,
-                    )}
-                    columnIndex={columnIndex}
-                    dataAttributes={mergeDataAttributes(
-                      {
-                        "data-column-id": column.id,
-                        "data-column-index": columnIndex,
-                        "data-sticky-top": stickyContext.isStickyTop
-                          ? "true"
-                          : undefined,
-                        "data-sticky-left": stickyContext.isStickyLeft
-                          ? "true"
-                          : undefined,
-                        "data-sticky-corner": stickyContext.isCorner
-                          ? "true"
-                          : undefined,
-                      },
-                      resolvedProps?.dataAttributes,
-                    )}
-                    style={resolveResolvedPropsStyle(
-                      joinStyles(
-                        props.styles?.headerCell,
-                        stickyContext.isStickyTop
-                          ? props.styles?.stickyHeaderCell
-                          : undefined,
-                        stickyContext.isStickyLeft
-                          ? props.styles?.stickyColumnCell
-                          : undefined,
-                        stickyContext.isCorner
-                          ? props.styles?.stickyCornerCell
-                          : undefined,
-                        createHeaderCellStyle(column.width, stickyLeft),
-                      ),
-                      resolvedProps,
-                    )}
-                    title={resolveResolvedPropsTitle(resolvedProps)}
-                  >
-                    {column.title}
-                  </HeadlessSheetColumnHeader>
-                );
-              })}
-            </HeadlessSheetRow>
-          </HeadlessSheetHeader>
-          <HeadlessSheetBody
-            class={props.classNames?.body}
-            style={props.styles?.body}
+              bindBodyViewport(element);
+            }}
+            style={props.styles?.viewport}
           >
-            {props.rows.map((row, rowIndex) => {
-              const rowId = resolveRowId(row, rowIndex, props.getRowId);
-              const rowContext: SheetRowContext<Row> = {
-                row,
-                rowId,
-                rowIndex,
-              };
-              const rowResolvedProps = props.getRowProps?.(rowContext);
+            <HeadlessSheetRoot
+              controller={controller}
+              class={joinClasses(css["root"]!, props.classNames?.root)}
+              ariaLabel={props.ariaLabel}
+              ariaLabelledby={props.ariaLabelledby}
+              ariaDescribedby={props.ariaDescribedby}
+              dataAttributes={rootDataAttributes}
+              style={props.styles?.root}
+            >
+              {bodySection}
+            </HeadlessSheetRoot>
+          </div>
+        </>
+      ) : (
+        <div
+          class={joinClasses(css["viewport"]!, props.classNames?.viewport)}
+          data-sheet-body-viewport="true"
+          ref={(element) => {
+            if (!(element instanceof HTMLDivElement)) {
+              return;
+            }
 
-              return (
-                <SheetBodyRow
-                  classNames={props.classNames}
-                  columns={props.columns}
-                  controller={controller}
-                  editValueBehavior={props.editValueBehavior}
-                  getCellProps={props.getCellProps}
-                  getViewportElement={getViewportElement}
-                  minRowHeight={minRowHeight}
-                  renderCell={props.renderCell}
-                  row={row}
-                  rowCount={props.rows.length}
-                  rowId={rowId}
-                  rowIndex={rowIndex}
-                  rowResolvedProps={rowResolvedProps}
-                  rowVirtualizationOverscan={rowVirtualizationOverscan}
-                  rowVirtualizationRootMargin={rowVirtualizationRootMargin}
-                  stickyColumnCount={stickyColumnCount}
-                  styles={props.styles}
-                  viewportVersion={viewportVersion}
-                  virtualizeRows={virtualizeRows}
-                />
-              );
-            })}
-          </HeadlessSheetBody>
-        </HeadlessSheetRoot>
-      </div>
+            bindBodyViewport(element);
+          }}
+          style={props.styles?.viewport}
+        >
+          <HeadlessSheetRoot
+            controller={controller}
+            class={joinClasses(css["root"]!, props.classNames?.root)}
+            ariaLabel={props.ariaLabel}
+            ariaLabelledby={props.ariaLabelledby}
+            ariaDescribedby={props.ariaDescribedby}
+            dataAttributes={rootDataAttributes}
+            style={props.styles?.root}
+          >
+            {headerSection}
+            {bodySection}
+          </HeadlessSheetRoot>
+        </div>
+      )}
     </div>
   );
 };

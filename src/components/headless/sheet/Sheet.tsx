@@ -161,7 +161,7 @@ export interface SheetRootProps
   readonly controller?: SheetController | undefined;
   readonly class?: string | undefined;
   readonly dataAttributes?: SheetDataAttributes | undefined;
-  readonly role?: "grid" | "table" | undefined;
+  readonly role?: "grid" | "presentation" | "table" | undefined;
   readonly style?: string | undefined;
   readonly title?: string | undefined;
 }

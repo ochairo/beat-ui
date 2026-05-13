@@ -211,11 +211,20 @@ function cursorAfterFill(
   return formatLength;
 }
 
+function isCalendarDayCellTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    target.closest("button[role='gridcell']") !== null
+  );
+}
+
 export const HlDateInput = component<DateInputProps>((props) => {
   const format = props.format ?? DEFAULT_FORMAT;
   const slotPositions = buildSlotPositions(format);
   const slotCount = slotPositions.length;
   const meta = buildSlotMeta(format, slotPositions);
+  const supportsCalendar = props.calendar != null;
+  const showsCalendarButton = props.icon != null || supportsCalendar;
   const calendarAlign = resolveFloatingHorizontalAlign(
     props.styles?.calendarWrapper,
   );
@@ -294,11 +303,15 @@ export const HlDateInput = component<DateInputProps>((props) => {
   );
 
   function toggleCalendar(): void {
-    if (props.disabled || props.readOnly) return;
+    if (!supportsCalendar || props.disabled || props.readOnly) return;
     isOpen.set(!isOpen.get());
   }
 
   function handleDocumentClick(event: MouseEvent): void {
+    if (!supportsCalendar) {
+      return;
+    }
+
     if (
       !isWithinFloatingLayer(
         event.target as Node | null,
@@ -433,10 +446,14 @@ export const HlDateInput = component<DateInputProps>((props) => {
       style={props.styles?.root}
       ref={(el) => {
         rootEl = el as HTMLDivElement;
-        document.addEventListener("click", handleDocumentClick, true);
+        if (supportsCalendar) {
+          document.addEventListener("click", handleDocumentClick, true);
+        }
         onCleanup(() => {
           stopCalendarTracking();
-          document.removeEventListener("click", handleDocumentClick, true);
+          if (supportsCalendar) {
+            document.removeEventListener("click", handleDocumentClick, true);
+          }
         });
       }}
     >
@@ -506,57 +523,66 @@ export const HlDateInput = component<DateInputProps>((props) => {
             }}
           />
         </div>
-        <button
-          type="button"
-          data-part="icon-button"
-          tabIndex={-1}
-          disabled={props.disabled}
-          aria-label="Toggle calendar"
-          style={props.styles?.iconButton}
-          onMouseDown={(event: MouseEvent) => event.preventDefault()}
-          onClick={toggleCalendar}
-        >
-          {props.icon}
-        </button>
+        {showsCalendarButton ? (
+          <button
+            type="button"
+            data-part="icon-button"
+            tabIndex={-1}
+            disabled={props.disabled}
+            aria-label="Toggle calendar"
+            style={props.styles?.iconButton}
+            onMouseDown={(event: MouseEvent) => event.preventDefault()}
+            onClick={toggleCalendar}
+          >
+            {props.icon}
+          </button>
+        ) : null}
       </div>
-      <div
-        data-part="calendar-wrapper"
-        data-beat-ui-date-input-popup="true"
-        role="dialog"
-        style={props.styles?.calendarWrapper}
-        ref={(el) => {
-          const htmlEl = el as HTMLElement;
-          calendarWrapperEl = htmlEl;
-          htmlEl.style.display = "none";
-          if (htmlEl.style.zIndex === "") {
-            htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
-          }
-          onCleanup(() => {
-            if (calendarWrapperEl === htmlEl) {
-              calendarWrapperEl = null;
+      {supportsCalendar ? (
+        <div
+          data-part="calendar-wrapper"
+          data-beat-ui-date-input-popup="true"
+          role="dialog"
+          style={props.styles?.calendarWrapper}
+          onClick={(event: MouseEvent) => {
+            if (isCalendarDayCellTarget(event.target)) {
+              isOpen.set(false);
             }
-          });
-          onCleanup(scheduleFloatingLayerMount(htmlEl));
-          onCleanup(
-            isOpen.on(({ currentValue }) => {
-              htmlEl.style.display = currentValue ? "" : "none";
-              if (currentValue) {
-                htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
-                moveFloatingLayerToHost(htmlEl);
-                startCalendarTracking();
-                updateCalendarPosition();
-                requestAnimationFrame(() => {
-                  if (isOpen.get()) updateCalendarPosition();
-                });
-                return;
+          }}
+          ref={(el) => {
+            const htmlEl = el as HTMLElement;
+            calendarWrapperEl = htmlEl;
+            htmlEl.style.display = "none";
+            if (htmlEl.style.zIndex === "") {
+              htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
+            }
+            onCleanup(() => {
+              if (calendarWrapperEl === htmlEl) {
+                calendarWrapperEl = null;
               }
-              stopCalendarTracking();
-            }),
-          );
-        }}
-      >
-        {props.calendar}
-      </div>
+            });
+            onCleanup(scheduleFloatingLayerMount(htmlEl));
+            onCleanup(
+              isOpen.on(({ currentValue }) => {
+                htmlEl.style.display = currentValue ? "" : "none";
+                if (currentValue) {
+                  htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
+                  moveFloatingLayerToHost(htmlEl);
+                  startCalendarTracking();
+                  updateCalendarPosition();
+                  requestAnimationFrame(() => {
+                    if (isOpen.get()) updateCalendarPosition();
+                  });
+                  return;
+                }
+                stopCalendarTracking();
+              }),
+            );
+          }}
+        >
+          {props.calendar}
+        </div>
+      ) : null}
     </div>
   );
 });
