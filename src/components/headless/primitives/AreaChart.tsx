@@ -3,6 +3,7 @@ import { pulse } from "@ochairo/pulse";
 import { scaleLinear, scaleOrdinal } from "@ochairo/scales";
 
 import type { BeatUiState } from "../../../runtime";
+import { svgMarkup } from "./svg-markup";
 
 export interface AreaChartSeries {
   readonly label: string;
@@ -85,10 +86,10 @@ export const HlAreaChart = component<AreaChartProps>((props) => {
         const y = pad * 0.5 + yScale(val);
         const color = props.styles?.gridLine ?? "var(--beat-ui-color-border)";
         parts.push(
-          `<line x1="${pad}" y1="${y.toFixed(1)}" x2="${w - pad}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="0.5" stroke-dasharray="4 4" />`,
+          svgMarkup`<line x1="${pad}" y1="${y.toFixed(1)}" x2="${w - pad}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="0.5" stroke-dasharray="4 4" />`,
         );
         parts.push(
-          `<text x="${(pad - 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.5">${val % 1 === 0 ? val : val.toFixed(1)}</text>`,
+          svgMarkup`<text x="${(pad - 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.5">${val % 1 === 0 ? val : val.toFixed(1)}</text>`,
         );
       }
     }
@@ -128,16 +129,16 @@ export const HlAreaChart = component<AreaChartProps>((props) => {
         ` L${lx.toFixed(1)},${zeroY.toFixed(1)} L${fx.toFixed(1)},${zeroY.toFixed(1)} Z`;
 
       parts.push(
-        `<path d="${areaPath}" fill="${color}" fill-opacity="${fillOpacity}" />`,
+        svgMarkup`<path d="${areaPath}" fill="${color}" fill-opacity="${fillOpacity}" />`,
       );
       parts.push(
-        `<polyline points="${linePts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`,
+        svgMarkup`<polyline points="${linePts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`,
       );
     });
 
     // X axis
     parts.push(
-      `<line x1="${pad}" y1="${zeroY.toFixed(1)}" x2="${w - pad}" y2="${zeroY.toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
+      svgMarkup`<line x1="${pad}" y1="${zeroY.toFixed(1)}" x2="${w - pad}" y2="${zeroY.toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
     );
 
     // Category labels
@@ -145,7 +146,7 @@ export const HlAreaChart = component<AreaChartProps>((props) => {
       categories.forEach((cat, i) => {
         const x = pad + xScale(i);
         parts.push(
-          `<text x="${x.toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">${cat}</text>`,
+          svgMarkup`<text x="${x.toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">${cat}</text>`,
         );
       });
     }
@@ -157,10 +158,10 @@ export const HlAreaChart = component<AreaChartProps>((props) => {
           s.color ?? (colorScale(si) as string) ?? DEFAULT_COLORS[0]!;
         const lx = pad + si * 80;
         parts.push(
-          `<rect x="${lx}" y="2" width="10" height="3" fill="${color}" rx="1" />`,
+          svgMarkup`<rect x="${lx}" y="2" width="10" height="3" fill="${color}" rx="1" />`,
         );
         parts.push(
-          `<text x="${lx + 14}" y="11" font-size="10" fill="currentColor" opacity="0.7">${s.label}</text>`,
+          svgMarkup`<text x="${lx + 14}" y="11" font-size="10" fill="currentColor" opacity="0.7">${s.label}</text>`,
         );
       });
     }

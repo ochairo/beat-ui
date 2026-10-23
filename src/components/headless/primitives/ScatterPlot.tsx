@@ -3,6 +3,7 @@ import { pulse } from "@ochairo/pulse";
 import { scaleLinear, scaleOrdinal } from "@ochairo/scales";
 
 import type { BeatUiState } from "../../../runtime";
+import { svgMarkup } from "./svg-markup";
 
 export interface ScatterPlotPoint {
   readonly x: number;
@@ -91,18 +92,18 @@ export const HlScatterPlot = component<ScatterPlotProps>((props) => {
         const yVal = minY + ((maxY - minY) * t) / ticks;
         const y = yScale(yVal);
         parts.push(
-          `<line x1="${pad}" y1="${y.toFixed(1)}" x2="${w - pad}" y2="${y.toFixed(1)}" stroke="${gridColor}" stroke-width="0.5" stroke-dasharray="4 4" />`,
+          svgMarkup`<line x1="${pad}" y1="${y.toFixed(1)}" x2="${w - pad}" y2="${y.toFixed(1)}" stroke="${gridColor}" stroke-width="0.5" stroke-dasharray="4 4" />`,
         );
         parts.push(
-          `<text x="${(pad - 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.5">${yVal % 1 === 0 ? yVal : yVal.toFixed(1)}</text>`,
+          svgMarkup`<text x="${(pad - 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.5">${yVal % 1 === 0 ? yVal : yVal.toFixed(1)}</text>`,
         );
         const xVal = minX + ((maxX - minX) * t) / ticks;
         const x = xScale(xVal);
         parts.push(
-          `<line x1="${x.toFixed(1)}" y1="${(pad * 0.5).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(h - padBottom).toFixed(1)}" stroke="${gridColor}" stroke-width="0.5" stroke-dasharray="4 4" />`,
+          svgMarkup`<line x1="${x.toFixed(1)}" y1="${(pad * 0.5).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(h - padBottom).toFixed(1)}" stroke="${gridColor}" stroke-width="0.5" stroke-dasharray="4 4" />`,
         );
         parts.push(
-          `<text x="${x.toFixed(1)}" y="${(h - padBottom + 14).toFixed(1)}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.5">${xVal % 1 === 0 ? xVal : xVal.toFixed(1)}</text>`,
+          svgMarkup`<text x="${x.toFixed(1)}" y="${(h - padBottom + 14).toFixed(1)}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.5">${xVal % 1 === 0 ? xVal : xVal.toFixed(1)}</text>`,
         );
       }
     }
@@ -111,21 +112,21 @@ export const HlScatterPlot = component<ScatterPlotProps>((props) => {
     const zeroX = xScale(Math.max(minX - xPad, 0));
     const zeroY = yScale(Math.max(minY - yPad, 0));
     parts.push(
-      `<line x1="${pad}" y1="${zeroY.toFixed(1)}" x2="${w - pad}" y2="${zeroY.toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
+      svgMarkup`<line x1="${pad}" y1="${zeroY.toFixed(1)}" x2="${w - pad}" y2="${zeroY.toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
     );
     parts.push(
-      `<line x1="${zeroX.toFixed(1)}" y1="${(pad * 0.5).toFixed(1)}" x2="${zeroX.toFixed(1)}" y2="${(h - padBottom).toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
+      svgMarkup`<line x1="${zeroX.toFixed(1)}" y1="${(pad * 0.5).toFixed(1)}" x2="${zeroX.toFixed(1)}" y2="${(h - padBottom).toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
     );
 
     // Axis labels
     if (props.xLabel) {
       parts.push(
-        `<text x="${(w / 2).toFixed(1)}" y="${(h - 3).toFixed(1)}" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.5">${props.xLabel}</text>`,
+        svgMarkup`<text x="${(w / 2).toFixed(1)}" y="${(h - 3).toFixed(1)}" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.5">${props.xLabel}</text>`,
       );
     }
     if (props.yLabel) {
       parts.push(
-        `<text x="${8}" y="${(h / 2).toFixed(1)}" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.5" transform="rotate(-90,8,${(h / 2).toFixed(1)})">${props.yLabel}</text>`,
+        svgMarkup`<text x="${8}" y="${(h / 2).toFixed(1)}" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.5" transform="rotate(-90,8,${(h / 2).toFixed(1)})">${props.yLabel}</text>`,
       );
     }
 
@@ -139,11 +140,11 @@ export const HlScatterPlot = component<ScatterPlotProps>((props) => {
         const cy = yScale(p.y);
         const r = p.r ?? defaultR;
         parts.push(
-          `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r}" fill="${color}" fill-opacity="0.8" />`,
+          svgMarkup`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r}" fill="${color}" fill-opacity="0.8" />`,
         );
         if (props.showPointLabels && p.label) {
           parts.push(
-            `<text x="${(cx + r + 3).toFixed(1)}" y="${(cy + 4).toFixed(1)}" font-size="9" fill="currentColor" opacity="0.6">${p.label}</text>`,
+            svgMarkup`<text x="${(cx + r + 3).toFixed(1)}" y="${(cy + 4).toFixed(1)}" font-size="9" fill="currentColor" opacity="0.6">${p.label}</text>`,
           );
         }
       });
@@ -156,10 +157,10 @@ export const HlScatterPlot = component<ScatterPlotProps>((props) => {
           s.color ?? (colorScale(si) as string) ?? DEFAULT_COLORS[0]!;
         const lx = pad + si * 90;
         parts.push(
-          `<circle cx="${lx + 5}" cy="7" r="4" fill="${color}" fill-opacity="0.8" />`,
+          svgMarkup`<circle cx="${lx + 5}" cy="7" r="4" fill="${color}" fill-opacity="0.8" />`,
         );
         parts.push(
-          `<text x="${lx + 14}" y="11" font-size="10" fill="currentColor" opacity="0.7">${s.label}</text>`,
+          svgMarkup`<text x="${lx + 14}" y="11" font-size="10" fill="currentColor" opacity="0.7">${s.label}</text>`,
         );
       });
     }

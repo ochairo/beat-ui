@@ -3,6 +3,7 @@ import { pulse } from "@ochairo/pulse";
 import { scaleLinear, scaleOrdinal } from "@ochairo/scales";
 
 import type { BeatUiState } from "../../../runtime";
+import { svgMarkup } from "./svg-markup";
 
 export interface LineChartSeries {
   readonly label: string;
@@ -87,10 +88,10 @@ export const HlLineChart = component<LineChartProps>((props) => {
         const y = pad * 0.5 + yScale(val);
         const color = props.styles?.gridLine ?? "var(--beat-ui-color-border)";
         parts.push(
-          `<line x1="${pad}" y1="${y.toFixed(1)}" x2="${w - pad}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="0.5" stroke-dasharray="4 4" />`,
+          svgMarkup`<line x1="${pad}" y1="${y.toFixed(1)}" x2="${w - pad}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="0.5" stroke-dasharray="4 4" />`,
         );
         parts.push(
-          `<text x="${(pad - 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.5">${val % 1 === 0 ? val : val.toFixed(1)}</text>`,
+          svgMarkup`<text x="${(pad - 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.5">${val % 1 === 0 ? val : val.toFixed(1)}</text>`,
         );
       }
     }
@@ -99,7 +100,7 @@ export const HlLineChart = component<LineChartProps>((props) => {
     seriesData.forEach((s, si) => {
       const color = s.color ?? (colorScale(si) as string) ?? DEFAULT_COLORS[0]!;
       const sw = s.strokeWidth ?? 2;
-      const dash = s.dashed ? "stroke-dasharray='6 3'" : "";
+      const dash = s.dashed ? "6 3" : "none";
 
       const points = s.values
         .map((v, i) => {
@@ -110,7 +111,7 @@ export const HlLineChart = component<LineChartProps>((props) => {
         .join(" ");
 
       parts.push(
-        `<polyline points="${points}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round" ${dash} />`,
+        svgMarkup`<polyline points="${points}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="${dash}" />`,
       );
 
       if (s.showDots !== false) {
@@ -118,7 +119,7 @@ export const HlLineChart = component<LineChartProps>((props) => {
           const x = pad + xScale(i);
           const y = pad * 0.5 + yScale(v);
           parts.push(
-            `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${color}" />`,
+            svgMarkup`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${color}" />`,
           );
         });
       }
@@ -126,7 +127,7 @@ export const HlLineChart = component<LineChartProps>((props) => {
 
     // X axis
     parts.push(
-      `<line x1="${pad}" y1="${zeroY.toFixed(1)}" x2="${w - pad}" y2="${zeroY.toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
+      svgMarkup`<line x1="${pad}" y1="${zeroY.toFixed(1)}" x2="${w - pad}" y2="${zeroY.toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
     );
 
     // Category labels
@@ -134,7 +135,7 @@ export const HlLineChart = component<LineChartProps>((props) => {
       categories.forEach((cat, i) => {
         const x = pad + xScale(i);
         parts.push(
-          `<text x="${x.toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">${cat}</text>`,
+          svgMarkup`<text x="${x.toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">${cat}</text>`,
         );
       });
     }
@@ -145,12 +146,12 @@ export const HlLineChart = component<LineChartProps>((props) => {
         const color =
           s.color ?? (colorScale(si) as string) ?? DEFAULT_COLORS[0]!;
         const lx = pad + si * 90;
-        const dash = s.dashed ? `stroke-dasharray='4 2'` : "";
+        const dash = s.dashed ? "4 2" : "none";
         parts.push(
-          `<line x1="${lx}" y1="7" x2="${lx + 12}" y2="7" stroke="${color}" stroke-width="2" ${dash} />`,
+          svgMarkup`<line x1="${lx}" y1="7" x2="${lx + 12}" y2="7" stroke="${color}" stroke-width="2" stroke-dasharray="${dash}" />`,
         );
         parts.push(
-          `<text x="${lx + 16}" y="11" font-size="10" fill="currentColor" opacity="0.7">${s.label}</text>`,
+          svgMarkup`<text x="${lx + 16}" y="11" font-size="10" fill="currentColor" opacity="0.7">${s.label}</text>`,
         );
       });
     }
