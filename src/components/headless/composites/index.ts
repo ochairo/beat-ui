@@ -1,6 +1,8 @@
 export { HlAppShell } from "./AppShell";
 export { HlDatePicker } from "./DatePicker";
 export { HlDateInput } from "./DateInput";
+export { HlDateRangePicker } from "./RangeDatePicker";
+export { HlDateRangeInput } from "./RangeDateInput";
 export { HlDialog, HlModal } from "./Dialog";
 export { HlPopover } from "./Popover";
 export { HlDropdown, HlDropbox, HlSelect } from "./Select";
@@ -23,6 +25,16 @@ export type {
 } from "./AppShell";
 export type { DatePickerProps, DatePickerStyles } from "./DatePicker";
 export type { DateInputProps, DateInputStyles } from "./DateInput";
+export type {
+  DateRangeInputProps,
+  DateRangeInputStyles,
+} from "./RangeDateInput";
+export type {
+  DateRangeValue,
+  DateRangePickerProps,
+  DateRangePickerStyles,
+  DateRangePickerYearSelectRange,
+} from "./RangeDatePicker";
 export type { DialogProps, DialogStyles, ModalProps } from "./Dialog";
 export type { PopoverPlacement, PopoverProps } from "./Popover";
 export type {

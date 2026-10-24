@@ -3,6 +3,7 @@ import { pulse } from "@ochairo/pulse";
 import { scaleLinear, scaleOrdinal } from "@ochairo/scales";
 
 import type { BeatUiState } from "../../../runtime";
+import { svgMarkup } from "./svg-markup";
 
 export interface BarChartSeries {
   readonly label: string;
@@ -91,10 +92,10 @@ export const HlBarChart = component<BarChartProps>((props) => {
         const y = pad * 0.5 + yScale(val);
         const color = props.styles?.gridLine ?? "var(--beat-ui-color-border)";
         parts.push(
-          `<line x1="${pad}" y1="${y.toFixed(1)}" x2="${w - pad}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="0.5" stroke-dasharray="4 4" />`,
+          svgMarkup`<line x1="${pad}" y1="${y.toFixed(1)}" x2="${w - pad}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="0.5" stroke-dasharray="4 4" />`,
         );
         parts.push(
-          `<text x="${(pad - 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.5">${val % 1 === 0 ? val : val.toFixed(1)}</text>`,
+          svgMarkup`<text x="${(pad - 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="currentColor" opacity="0.5">${val % 1 === 0 ? val : val.toFixed(1)}</text>`,
         );
       }
     }
@@ -107,12 +108,12 @@ export const HlBarChart = component<BarChartProps>((props) => {
         const barH = Math.abs(yScale(v) - zeroY);
         const y = pad * 0.5 + (v >= 0 ? zeroY - barH : zeroY);
         parts.push(
-          `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${color}" rx="2" />`,
+          svgMarkup`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" fill="${color}" rx="2" />`,
         );
         if (props.showValues) {
           const ty = y + (v >= 0 ? -4 : barH + 12);
           parts.push(
-            `<text x="${(x + barW / 2).toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.7">${v}</text>`,
+            svgMarkup`<text x="${(x + barW / 2).toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.7">${v}</text>`,
           );
         }
       });
@@ -120,7 +121,7 @@ export const HlBarChart = component<BarChartProps>((props) => {
 
     // X axis
     parts.push(
-      `<line x1="${pad}" y1="${(pad * 0.5 + zeroY).toFixed(1)}" x2="${w - pad}" y2="${(pad * 0.5 + zeroY).toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
+      svgMarkup`<line x1="${pad}" y1="${(pad * 0.5 + zeroY).toFixed(1)}" x2="${w - pad}" y2="${(pad * 0.5 + zeroY).toFixed(1)}" stroke="currentColor" opacity="0.2" stroke-width="1" />`,
     );
 
     // Category labels
@@ -128,7 +129,7 @@ export const HlBarChart = component<BarChartProps>((props) => {
       categories.forEach((cat, i) => {
         const x = pad + i * groupW + groupW / 2;
         parts.push(
-          `<text x="${x.toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">${cat}</text>`,
+          svgMarkup`<text x="${x.toFixed(1)}" y="${(h - 8).toFixed(1)}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">${cat}</text>`,
         );
       });
     }
@@ -140,10 +141,10 @@ export const HlBarChart = component<BarChartProps>((props) => {
           s.color ?? (colorScale(si) as string) ?? DEFAULT_COLORS[0]!;
         const lx = pad + si * 80;
         parts.push(
-          `<rect x="${lx}" y="2" width="10" height="10" fill="${color}" rx="2" />`,
+          svgMarkup`<rect x="${lx}" y="2" width="10" height="10" fill="${color}" rx="2" />`,
         );
         parts.push(
-          `<text x="${lx + 14}" y="11" font-size="10" fill="currentColor" opacity="0.7">${s.label}</text>`,
+          svgMarkup`<text x="${lx + 14}" y="11" font-size="10" fill="currentColor" opacity="0.7">${s.label}</text>`,
         );
       });
     }

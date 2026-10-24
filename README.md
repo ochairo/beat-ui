@@ -21,6 +21,12 @@ UI component library for [Beat](https://github.com/ochairo/beat) applications.
 pnpm add @ochairo/beat-ui @ochairo/beat @ochairo/pulse
 ```
 
+## Upgrading to 2.0.0
+
+Use Node 24.22.1 or later within 24.x, or Node 26.12.1 or later. Upgrade Beat and
+Pulse to 2.0.0 alongside Beat UI so the application and its components share the
+same runtime. Beat UI also uses Numbers and Scales 2.0.0.
+
 ## Usage
 
 ```tsx

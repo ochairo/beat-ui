@@ -3,6 +3,7 @@ import { pulse } from "@ochairo/pulse";
 import { scaleOrdinal } from "@ochairo/scales";
 
 import type { BeatUiState } from "../../../runtime";
+import { svgMarkup } from "./svg-markup";
 
 export interface PieChartSlice {
   readonly label: string;
@@ -120,7 +121,7 @@ export const HlPieChart = component<PieChartProps>((props) => {
       const endAngle = startAngle + angle;
 
       const d = slicePath(cx, cy, r, startAngle, endAngle, innerR);
-      parts.push(`<path d="${d}" fill="${color}" stroke="none" />`);
+      parts.push(svgMarkup`<path d="${d}" fill="${color}" stroke="none" />`);
 
       if (props.showLabels && angle > 20) {
         const midAngle = startAngle + angle / 2;
@@ -128,7 +129,7 @@ export const HlPieChart = component<PieChartProps>((props) => {
         const lp = polarToCartesian(cx, cy, labelR, midAngle);
         const pct = ((slice.value / total) * 100).toFixed(0);
         parts.push(
-          `<text x="${lp.x.toFixed(2)}" y="${(lp.y + 4).toFixed(2)}" text-anchor="middle" font-size="11" fill="white" font-weight="500">${pct}%</text>`,
+          svgMarkup`<text x="${lp.x.toFixed(2)}" y="${(lp.y + 4).toFixed(2)}" text-anchor="middle" font-size="11" fill="white" font-weight="500">${pct}%</text>`,
         );
       }
 
@@ -146,10 +147,10 @@ export const HlPieChart = component<PieChartProps>((props) => {
         const lx = col * itemW;
         const ly = size + 8 + row * 16;
         parts.push(
-          `<rect x="${lx}" y="${ly}" width="10" height="10" fill="${color}" rx="2" />`,
+          svgMarkup`<rect x="${lx}" y="${ly}" width="10" height="10" fill="${color}" rx="2" />`,
         );
         parts.push(
-          `<text x="${lx + 14}" y="${ly + 9}" font-size="10" fill="currentColor" opacity="0.7">${slice.label}</text>`,
+          svgMarkup`<text x="${lx + 14}" y="${ly + 9}" font-size="10" fill="currentColor" opacity="0.7">${slice.label}</text>`,
         );
       });
     }

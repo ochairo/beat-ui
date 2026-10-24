@@ -1,6 +1,8 @@
 export { AppShell } from "./app-shell/AppShell";
 export { DatePicker } from "./date-picker/DatePicker";
 export { DateInput } from "./date-input/DateInput";
+export { DateRangePicker } from "./range-date-picker/RangeDatePicker";
+export { DateRangeInput } from "./range-date-input/RangeDateInput";
 export { Dialog, Modal } from "./dialog/Dialog";
 export { Popover } from "./popover/Popover";
 export { Dropdown, Dropbox, Select } from "./select/Select";
@@ -23,6 +25,11 @@ export type {
 } from "./app-shell/AppShell";
 export type { DatePickerProps } from "./date-picker/DatePicker";
 export type { DateInputProps } from "./date-input/DateInput";
+export type {
+  DateRangeValue,
+  DateRangePickerProps,
+} from "./range-date-picker/RangeDatePicker";
+export type { DateRangeInputProps } from "./range-date-input/RangeDateInput";
 export type { DialogProps, ModalProps } from "./dialog/Dialog";
 export type { PopoverPlacement, PopoverProps } from "./popover/Popover";
 export type {

@@ -1,10 +1,10 @@
-import { render } from "@ochairo/beat";
+import { render, type BeatJsxChild } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 import { describe, expect, it } from "vitest";
 
 import { Select, ThemeRoot } from "../../src";
 
-function renderSelect(target: HTMLElement, view: JSX.Element): () => void {
+function renderSelect(target: HTMLElement, view: BeatJsxChild): () => void {
   return render(target, <ThemeRoot>{view}</ThemeRoot>);
 }
 

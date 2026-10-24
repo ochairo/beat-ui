@@ -1,0 +1,108 @@
+.root {
+  position: relative;
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+}
+
+.root [data-part="input-wrapper"] {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  height: var(--beat-ui-control-height);
+  border-radius: 0.875rem;
+  overflow: hidden;
+  border: 1px solid var(--beat-ui-color-border);
+  background: var(--beat-ui-color-input);
+  transition: border-color 160ms ease;
+}
+
+.root [data-part="input-wrapper"][data-invalid="true"] {
+  border-color: var(--beat-ui-color-danger);
+}
+
+.root [data-part="fields"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+.root [data-part="field"] {
+  display: flex;
+  align-items: stretch;
+  flex: 0 1 auto;
+  width: calc(10ch + 1rem);
+  min-width: 0;
+  height: 100%;
+}
+
+.root [data-part="field"] [data-part="input-wrapper"] {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.root [data-part="field"] [data-part="input"] {
+  width: 100%;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  padding: 0.6875rem 0.625rem 0.8125rem;
+  border: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--beat-ui-color-text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  outline: none;
+}
+
+.root [data-part="field"] [data-part="input-overlay"] {
+  padding: 0.6875rem 0.625rem 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.root [data-part="separator"] {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  flex: 0 0 auto;
+  height: 100%;
+  width: 0.5rem;
+  color: var(--beat-ui-color-text-muted);
+  font: inherit;
+  line-height: 1;
+  user-select: none;
+}
+
+.root [data-part="icon-button"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  flex: 0 0 auto;
+  width: calc(var(--beat-ui-control-height) + 0.35rem);
+  padding: 0 0.75rem 0 0.125rem;
+  border: none;
+  background: transparent;
+  color: var(--beat-ui-color-text-muted);
+  cursor: pointer;
+  outline: none;
+  transition: color 160ms ease;
+}
+
+.root [data-part="calendar-wrapper"],
+[data-beat-ui-date-input-popup="true"][data-part="calendar-wrapper"] {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  z-index: var(--beat-ui-z-index-popover);
+}

@@ -4,6 +4,10 @@ import { describe, expect, it } from "vitest";
 
 import { DateInput, Dialog, ThemeRoot } from "../../src";
 
+function findCalendarDayButton(target: HTMLElement): HTMLButtonElement | null {
+  return target.querySelector("button[role='gridcell']");
+}
+
 function getCalendarMonthLabel(target: HTMLElement): string | null | undefined {
   return target.querySelector(
     "button[aria-label='Choose month'] [data-part='trigger-label']",
@@ -120,6 +124,35 @@ describe("DateInput", () => {
     expect(dialog.style.display).toBe("");
 
     button.click();
+    expect(dialog.style.display).toBe("none");
+
+    document.body.removeChild(target);
+    cleanup();
+  });
+
+  it("closes the calendar popup after selecting a date", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DateInput />
+      </ThemeRoot>,
+    );
+
+    const dialog = target.querySelector("[role='dialog']") as HTMLElement;
+    const button = target.querySelector(
+      "button[aria-label='Toggle calendar']",
+    ) as HTMLButtonElement;
+
+    button.click();
+    expect(dialog.style.display).toBe("");
+
+    findCalendarDayButton(target)?.dispatchEvent(
+      new MouseEvent("click", { bubbles: true }),
+    );
+
     expect(dialog.style.display).toBe("none");
 
     document.body.removeChild(target);

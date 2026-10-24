@@ -198,6 +198,77 @@ describe("styled Sheet", () => {
     cleanup();
   });
 
+  it("keeps a sticky header outside the scrolling viewport and syncs horizontal scroll", () => {
+    const target = document.createElement("div");
+    const rows = [
+      { id: "alpha", name: pulse("Alpha"), count: pulse(Int("1")) },
+      { id: "beta", name: pulse("Beta"), count: pulse(Int("2")) },
+    ] as const;
+
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <Sheet
+          ariaLabel="Split header sheet"
+          height="12rem"
+          rows={rows}
+          columns={[
+            {
+              id: "name",
+              title: "Name",
+              width: "16rem",
+              dataType: "text",
+              getValueState: (row) => row.name,
+            },
+            {
+              id: "count",
+              title: "Count",
+              width: "16rem",
+              dataType: "integer",
+              getValueState: (row) => row.count,
+            },
+          ]}
+        />
+      </ThemeRoot>,
+    );
+
+    const headerViewport = target.querySelector(
+      '[data-sheet-header-viewport="true"]',
+    );
+    const bodyViewport = target.querySelector(
+      '[data-sheet-body-viewport="true"]',
+    );
+
+    expect(headerViewport instanceof HTMLDivElement).toBe(true);
+    expect(bodyViewport instanceof HTMLDivElement).toBe(true);
+
+    if (
+      !(headerViewport instanceof HTMLDivElement) ||
+      !(bodyViewport instanceof HTMLDivElement)
+    ) {
+      throw new Error("Expected split header and body viewports.");
+    }
+
+    Object.defineProperty(bodyViewport, "clientWidth", {
+      configurable: true,
+      value: 180,
+    });
+    Object.defineProperty(bodyViewport, "offsetWidth", {
+      configurable: true,
+      value: 196,
+    });
+
+    bodyViewport.scrollLeft = 72;
+    bodyViewport.dispatchEvent(new Event("scroll"));
+
+    expect(headerViewport.scrollLeft).toBe(72);
+    expect(
+      headerViewport.style.getPropertyValue("--beat-ui-sheet-scrollbar-gutter"),
+    ).toBe("16px");
+
+    cleanup();
+  });
+
   it("can sync an untouched editor until the user types", async () => {
     const target = document.createElement("div");
     const rows = [
@@ -268,7 +339,7 @@ describe("styled Sheet", () => {
 
   it("supports cell and header resolver hooks with slot overrides", () => {
     const target = document.createElement("div");
-    const previousByRowId = new Map([
+    const previousByRowId = new Map<string, { readonly count: number; readonly name: string }>([
       ["alpha", { count: 3, name: "Alpha" }],
       ["beta", { count: 2, name: "Beta" }],
     ] as const);

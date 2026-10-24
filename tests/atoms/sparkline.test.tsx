@@ -135,7 +135,6 @@ describe("Sparkline", () => {
 
     cleanup();
 
-    const subscriberCountBefore = values.get();
     // After cleanup, updating the pulse should not throw
     values.set([4, 5, 6]);
     // DOM should be empty after cleanup
