@@ -1,6 +1,6 @@
 {
   "name": "@ochairo/beat-ui",
-  "version": "1.6.10",
+  "version": "2.0.0",
   "description": "UI component catalog and foundations for Beat applications",
   "type": "module",
   "main": "./dist/index.js",
@@ -27,8 +27,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "validate": "pnpm test && pnpm typecheck && pnpm build",
-    "clean": "rm -rf dist"
+    "validate": "pnpm test && pnpm test:typecheck && pnpm typecheck && pnpm build",
+    "clean": "rm -rf dist",
+    "test:typecheck": "tsc -p tests/tsconfig.json"
   },
   "keywords": [
     "beat-ui",
@@ -52,15 +53,15 @@
     "url": "https://github.com/ochairo/beat-ui/issues"
   },
   "dependencies": {
-    "@ochairo/beat": "^1.6.10",
-    "@ochairo/numbers": "^1.6.10",
-    "@ochairo/pulse": "^1.6.10",
-    "@ochairo/scales": "^1.6.10"
+    "@ochairo/beat": "^2.0.0",
+    "@ochairo/numbers": "^2.0.0",
+    "@ochairo/pulse": "^2.0.0",
+    "@ochairo/scales": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
     "esbuild": "^0.28.2",
-    "happy-dom": "^20.14.6",
+    "happy-dom": "^21.0.4",
     "typescript": "^5.9.3",
     "vite": "^8.3.5",
     "vitest": "^4.1.12"

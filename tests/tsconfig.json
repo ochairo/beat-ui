@@ -8,6 +8,7 @@
     ]
   },
   "include": [
+    "../src/css-modules.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
   ],

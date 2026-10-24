@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { Popover, ThemeRoot } from "../../src";
 
+/** Optional Popover settings exercised by the test harness. */
 interface PopoverHarnessProps {
   readonly open: Pulse<boolean>;
   readonly dismissOnOutsideClick?: boolean;
@@ -29,8 +30,8 @@ const PopoverHarness = component<PopoverHarnessProps>((props) => {
       <Popover
         open={props.open}
         anchorRef={() => anchorEl}
-        dismissOnOutsideClick={props.dismissOnOutsideClick}
-        matchAnchorWidth={props.matchAnchorWidth}
+        {...(props.dismissOnOutsideClick === undefined ? {} : { dismissOnOutsideClick: props.dismissOnOutsideClick })}
+        {...(props.matchAnchorWidth === undefined ? {} : { matchAnchorWidth: props.matchAnchorWidth })}
       >
         <div>Popover content</div>
       </Popover>
@@ -78,7 +79,7 @@ describe("Popover", () => {
 
     expect(popover).not.toBeNull();
     expect(controlRoot.contains(popover)).toBe(false);
-    expect(popover?.parentElement?.dataset.beatUiRoot).toBe("true");
+    expect(popover?.parentElement?.dataset["beatUiRoot"]).toBe("true");
     expect(popover?.style.position).toBe("fixed");
 
     cleanup();

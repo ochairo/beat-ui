@@ -2,7 +2,7 @@ import { component, onCleanup, type BeatJsxChild } from "@ochairo/beat";
 import { pulse, type Pulse } from "@ochairo/pulse";
 
 import type { BeatUiAccessibilityProps } from "../../../../foundations";
-import type { BeatUiRenderable, BeatUiState } from "../../../../runtime";
+import type { BeatUiRenderable } from "../../../../runtime";
 import {
   SheetBody as HeadlessSheetBody,
   SheetCell as HeadlessSheetCell,
@@ -17,6 +17,7 @@ import {
   type SheetDataAttributes,
   type SheetCellOption,
   type SheetController,
+  type SheetValueState,
 } from "../../../headless/sheet";
 import css from "./Sheet.module.css";
 
@@ -97,6 +98,7 @@ export interface SheetCellContext<Row> extends SheetStickyContext {
   readonly value: unknown;
 }
 
+/** Presentation and cell-state access for a column of heterogeneous row values. */
 export interface SheetColumnDefinition<Row> {
   readonly align?: SheetCellAlign | undefined;
   readonly dataType?: SheetCellDataType | undefined;
@@ -105,7 +107,7 @@ export interface SheetColumnDefinition<Row> {
     | ((row: Row, rowIndex: number) => SheetEditValueBehavior)
     | undefined;
   readonly editable?: boolean | ((row: Row, rowIndex: number) => boolean);
-  readonly getValueState: (row: Row, rowIndex: number) => BeatUiState<unknown>;
+  readonly getValueState: (row: Row, rowIndex: number) => SheetValueState;
   readonly id: string;
   readonly minHeight?: string | undefined;
   readonly options?: readonly SheetCellOption[] | undefined;

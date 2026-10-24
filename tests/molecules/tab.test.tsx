@@ -19,7 +19,7 @@ describe("Tab", () => {
     );
 
     const buttons = Array.from(target.querySelectorAll('[role="tab"]'));
-    const panels = Array.from(target.querySelectorAll('[role="tabpanel"]'));
+    const panels = Array.from(target.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
 
     expect(panels[0]?.hidden).toBe(false);
     expect(panels[1]?.hidden).toBe(true);
@@ -77,7 +77,7 @@ describe("Tab", () => {
     );
 
     const buttons = Array.from(target.querySelectorAll('[role="tab"]'));
-    const panels = Array.from(target.querySelectorAll('[role="tabpanel"]'));
+    const panels = Array.from(target.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
 
     expect(buttons[0]?.getAttribute("aria-selected")).toBe("true");
 

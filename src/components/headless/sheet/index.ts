@@ -18,6 +18,7 @@ export type {
   SheetCellEditorKind,
   SheetCellOption,
   SheetCellProps,
+  SheetValueState,
   SheetCellRegistration,
   SheetCellSelection,
   SheetController,

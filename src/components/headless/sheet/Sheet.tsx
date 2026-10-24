@@ -193,6 +193,14 @@ export interface SheetHeaderCellProps
   readonly title?: string | undefined;
 }
 
+/**
+ * State capabilities consumed by heterogeneous sheet cells, without child navigation.
+ * Editable cells write parsed values dynamically: callers must align their data type
+ * and parser with the values their state accepts, or make the cell read-only.
+ */
+export type SheetValueState = Pick<BeatUiState<unknown>, "get" | "set" | "on">;
+
+/** Content, editing policy, and state for one positioned sheet cell. */
 export interface SheetCellProps
   extends BeatUiAccessibilityProps, BeatUiContentProps {
   readonly align?: SheetCellAlign | undefined;
@@ -219,7 +227,7 @@ export interface SheetCellProps
   readonly style?: string | undefined;
   readonly title?: string | undefined;
   readonly value?: unknown;
-  readonly valueState?: BeatUiState<unknown> | undefined;
+  readonly valueState?: SheetValueState | undefined;
 }
 
 interface SheetElementWithController extends HTMLElement {

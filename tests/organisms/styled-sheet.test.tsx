@@ -339,7 +339,7 @@ describe("styled Sheet", () => {
 
   it("supports cell and header resolver hooks with slot overrides", () => {
     const target = document.createElement("div");
-    const previousByRowId = new Map([
+    const previousByRowId = new Map<string, { readonly count: number; readonly name: string }>([
       ["alpha", { count: 3, name: "Alpha" }],
       ["beta", { count: 2, name: "Beta" }],
     ] as const);

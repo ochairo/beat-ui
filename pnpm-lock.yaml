@@ -9,17 +9,17 @@ importers:
   .:
     dependencies:
       '@ochairo/beat':
-        specifier: ^1.6.10
-        version: 1.6.10
+        specifier: ^2.0.0
+        version: 2.0.0(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
       '@ochairo/numbers':
-        specifier: ^1.6.10
-        version: 1.6.10
+        specifier: ^2.0.0
+        version: 2.0.0
       '@ochairo/pulse':
-        specifier: ^1.6.10
-        version: 1.6.10
+        specifier: ^2.0.0
+        version: 2.0.0
       '@ochairo/scales':
-        specifier: ^1.6.10
-        version: 1.6.10
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@types/node':
         specifier: ^24.19.2
@@ -28,8 +28,8 @@ importers:
         specifier: ^0.28.2
         version: 0.28.2
       happy-dom:
-        specifier: ^20.14.6
-        version: 20.14.6
+        specifier: ^21.0.4
+        version: 21.0.4
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -38,7 +38,7 @@ importers:
         version: 8.3.5(@types/node@24.19.2)(esbuild@0.28.2)
       vitest:
         specifier: ^4.1.12
-        version: 4.1.12(@types/node@24.19.2)(happy-dom@20.14.6)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+        version: 4.1.12(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
 
 packages:
 
@@ -201,20 +201,26 @@ packages:
   '@jridgewell/sourcemap-codec@1.6.0':
     resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
 
-  '@ochairo/beat@1.6.10':
-    resolution: {integrity: sha512-ZstbksqjWYsV5KntUSuQn41KMj+WcsMLg6IRdkgM149yqAHTzU0P+l5IjWkxBzCSXtBFAuFU11P1IiYi4wPahw==}
-    engines: {node: '>=20.0.0'}
+  '@ochairo/beat@2.0.0':
+    resolution: {integrity: sha512-hW29yZ70/2q9ltGe8fJTNAOiW/ShZVBQsMkoIFwxwo+V3sl6F/xfXRDaGWHXJWfelnNDxBzazcC+Q1ZQTD9+kw==}
+    engines: {node: ^24.22.1 || >=26.12.1}
+    peerDependencies:
+      vite: ^7.3.7 || ^8.3.5
+    peerDependenciesMeta:
+      vite:
+        optional: true
 
-  '@ochairo/numbers@1.6.10':
-    resolution: {integrity: sha512-zTvKMlhFIScuawr3rUb+hcTsDL9Un4FOuhtQkq/nmwYUk39M0yqYS2jjrtZIjyXhU/R+3KF1G/e0wFVVC7S6LQ==}
-    engines: {node: '>=20.0.0'}
+  '@ochairo/numbers@2.0.0':
+    resolution: {integrity: sha512-HDybkIL/DuwB4ein0XhKijb3G9oF80aBXGYMcyVb3Wgs8s4flSHirxIq070ygbYj586nqIJjN2XfFXeDrDl8JA==}
+    engines: {node: ^24.22.1 || >=26.12.1}
 
-  '@ochairo/pulse@1.6.10':
-    resolution: {integrity: sha512-mwR0rNcYD5yRoKcyvD3bHi4gO3DRHN5W89kt7ZDtRGGL1pvm/+etwfnFStTVw+/v2xbKB/HEjvlB4Sxd8SeD+Q==}
-    engines: {node: '>=20.0.0'}
+  '@ochairo/pulse@2.0.0':
+    resolution: {integrity: sha512-//DPSJqrq7/x6DD7ug2mfssMpccFiQtW4VEPWGO90jRvrjFKvbDdfdeB2nwanofqEKOh4k5E7LGmarkNu5/oSg==}
+    engines: {node: ^24.22.1 || >=26.12.1}
 
-  '@ochairo/scales@1.6.10':
-    resolution: {integrity: sha512-jV6SVFQ6sDKyYxiF7MBahVIQ6d4kNjek/cKzaubrFOsCGHRlhdWZKIERMeZTGS1gACgqG3ckrcajrJbuHRCuhQ==}
+  '@ochairo/scales@2.0.0':
+    resolution: {integrity: sha512-/8MTGoXWrJztCi7Tf3OcT5wd1czIjeW7/1kNZouDhte47XoTer+wGI4wMDeZvRnQsjaFBUKDKdctiBqOJNwqcA==}
+    engines: {node: ^24.22.1 || >=26.12.1}
 
   '@oxc-project/types@0.155.0':
     resolution: {integrity: sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==}
@@ -420,8 +426,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  happy-dom@20.14.6:
-    resolution: {integrity: sha512-5DDsf4QmEIlRL6NkCv/fxSjYHHkZceL/IaYQdJc2h3G7DRTEai++VTjbfL0LB9geW2VrA3+vrjF3Efx+OTtX0Q==}
+  happy-dom@21.0.4:
+    resolution: {integrity: sha512-tFm+GaLBgo6o0awHnvHaNoraVo27qJ+2tZEtZ+cIa08hXbeitrxAJajLI05hsUy/2/YTKcUjQYzHe5mCcraLBw==}
     engines: {node: '>=20.0.0'}
 
   lightningcss-android-arm64@1.33.0:
@@ -752,15 +758,18 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.6.0': {}
 
-  '@ochairo/beat@1.6.10':
+  '@ochairo/beat@2.0.0(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))':
     dependencies:
-      '@ochairo/pulse': 1.6.10
+      '@ochairo/pulse': 2.0.0
+      typescript: 5.9.3
+    optionalDependencies:
+      vite: 8.3.5(@types/node@24.19.2)(esbuild@0.28.2)
 
-  '@ochairo/numbers@1.6.10': {}
+  '@ochairo/numbers@2.0.0': {}
 
-  '@ochairo/pulse@1.6.10': {}
+  '@ochairo/pulse@2.0.0': {}
 
-  '@ochairo/scales@1.6.10': {}
+  '@ochairo/scales@2.0.0': {}
 
   '@oxc-project/types@0.155.0': {}
 
@@ -931,7 +940,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  happy-dom@20.14.6:
+  happy-dom@21.0.4:
     dependencies:
       '@types/node': 24.19.2
       '@types/whatwg-mimetype': 3.0.2
@@ -1069,7 +1078,7 @@ snapshots:
       esbuild: 0.28.2
       fsevents: 2.3.3
 
-  vitest@4.1.12(@types/node@24.19.2)(happy-dom@20.14.6)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)):
+  vitest@4.1.12(@types/node@24.19.2)(happy-dom@21.0.4)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)):
     dependencies:
       '@vitest/expect': 4.1.12
       '@vitest/mocker': 4.1.12(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
@@ -1093,7 +1102,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.19.2
-      happy-dom: 20.14.6
+      happy-dom: 21.0.4
     transitivePeerDependencies:
       - msw
 

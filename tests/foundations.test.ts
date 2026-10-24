@@ -104,16 +104,16 @@ describe("foundations", () => {
     const controller = createThemeController();
     const cleanup = controller.applyTo(target);
 
-    expect(target.dataset.beatUiTheme).toBe("tokyo-night");
-    expect(target.dataset.beatUiMode).toBe("dark");
+    expect(target.dataset["beatUiTheme"]).toBe("tokyo-night");
+    expect(target.dataset["beatUiMode"]).toBe("dark");
     expect(target.style.getPropertyValue("--beat-ui-color-background")).toBe(
       "#1a1b26",
     );
 
     controller.toggleMode();
 
-    expect(target.dataset.beatUiTheme).toBe("tokyo-day");
-    expect(target.dataset.beatUiMode).toBe("light");
+    expect(target.dataset["beatUiTheme"]).toBe("tokyo-day");
+    expect(target.dataset["beatUiMode"]).toBe("light");
     expect(target.style.getPropertyValue("--beat-ui-color-background")).toBe(
       "#e1e2e7",
     );
@@ -127,7 +127,7 @@ describe("foundations", () => {
 
     applyThemeToElement(target, TOKYO_DAY_THEME);
 
-    expect(target.dataset.beatUiTheme).toBe("tokyo-day");
+    expect(target.dataset["beatUiTheme"]).toBe("tokyo-day");
     expect(target.style.getPropertyValue("--beat-ui-color-primary")).toBe(
       "#2e7de9",
     );
