@@ -21,6 +21,63 @@ function getCalendarYearLabel(target: HTMLElement): string | null | undefined {
 }
 
 describe("DateInput", () => {
+  it("preserves partial typing until a complete date can be committed", () => {
+    const target = document.createElement("div");
+    const value = pulse("");
+    const seen: string[] = [];
+    const cleanup = render(
+      target,
+      <DateInput value={value} onValueChange={(next) => seen.push(next)} />,
+    );
+
+    try {
+      const input = target.querySelector<HTMLInputElement>("input[type='text']");
+      if (!input) throw new Error("Missing date input");
+      for (const key of "2025") {
+        input.dispatchEvent(
+          new KeyboardEvent("keydown", { key, bubbles: true }),
+        );
+      }
+      expect(input.value).toBe("2025-MM-DD");
+      expect(value.get()).toBe("");
+      expect(seen).toEqual([]);
+
+      for (const key of "0615") {
+        input.dispatchEvent(
+          new KeyboardEvent("keydown", { key, bubbles: true }),
+        );
+      }
+      expect(input.value).toBe("2025-06-15");
+      expect(value.get()).toBe("2025-06-15");
+      expect(seen).toEqual(["2025-06-15"]);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("reconciles a complete date normalized by the caller", () => {
+    const target = document.createElement("div");
+    const value = pulse("");
+    const cleanup = render(
+      target,
+      <DateInput value={value} onValueChange={() => value.set("2025-06-18")} />,
+    );
+
+    try {
+      const input = target.querySelector<HTMLInputElement>("input[type='text']");
+      if (!input) throw new Error("Missing date input");
+      input.value = "2025-06-15";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      expect(value.get()).toBe("2025-06-18");
+      expect(input.value).toBe("2025-06-18");
+
+      value.set("2025-07-20");
+      expect(input.value).toBe("2025-07-20");
+    } finally {
+      cleanup();
+    }
+  });
+
   it("renders a date input", () => {
     const target = document.createElement("div");
 

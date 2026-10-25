@@ -50,7 +50,10 @@ interface DayCell {
   readonly outside: boolean;
 }
 
-function getCalendarDays(year: number, month: number): readonly DayCell[] {
+function getCalendarWeeks(
+  year: number,
+  month: number,
+): readonly (readonly DayCell[])[] {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrevMonth = new Date(year, month, 0).getDate();
@@ -70,7 +73,9 @@ function getCalendarDays(year: number, month: number): readonly DayCell[] {
     cells.push({ date: new Date(year, month + 1, day), day, outside: true });
   }
 
-  return cells;
+  return Array.from({ length: 6 }, (_, week) =>
+    cells.slice(week * 7, (week + 1) * 7),
+  );
 }
 
 function formatDate(date: Date): string {
@@ -238,7 +243,8 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
   const yearOptions = pulse(
     createYearOptions(getYearOptions(viewYear.get(), props.yearSelectRange)),
   );
-  const days = pulse(getCalendarDays(viewYear.get(), viewMonth.get()));
+  const weeks = pulse(getCalendarWeeks(viewYear.get(), viewMonth.get()));
+  let selectingDay = false;
 
   function updateView(): void {
     monthValue.set(String(viewMonth.get()));
@@ -246,11 +252,12 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
     yearOptions.set(
       createYearOptions(getYearOptions(viewYear.get(), props.yearSelectRange)),
     );
-    days.set(getCalendarDays(viewYear.get(), viewMonth.get()));
+    weeks.set(getCalendarWeeks(viewYear.get(), viewMonth.get()));
   }
 
   onCleanup(
     state.state.on(({ currentValue }) => {
+      if (selectingDay) return;
       const parsed = getViewDate(currentValue);
       if (parsed) {
         viewYear.set(parsed.getFullYear());
@@ -263,6 +270,7 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
   const todayStr = formatDate(now);
 
   function prevMonth(): void {
+    if (props.disabled) return;
     const m = viewMonth.get();
     if (m === 0) {
       viewMonth.set(11);
@@ -274,6 +282,7 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
   }
 
   function nextMonth(): void {
+    if (props.disabled) return;
     const m = viewMonth.get();
     if (m === 11) {
       viewMonth.set(0);
@@ -285,18 +294,28 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
   }
 
   function selectDay(cell: DayCell, event?: MouseEvent): void {
-    if (cell.outside) {
-      viewYear.set(cell.date.getFullYear());
-      viewMonth.set(cell.date.getMonth());
-      updateView();
+    if (props.disabled) return;
+    const nextRange = resolveNextRange(state.state.get(), formatDate(cell.date));
+    selectingDay = true;
+    try {
+      state.setValue(nextRange, event);
+    } finally {
+      selectingDay = false;
     }
-    state.setValue(
-      resolveNextRange(state.state.get(), formatDate(cell.date)),
-      event,
-    );
+    const canonicalRange = state.state.get();
+    const normalized =
+      canonicalRange.start !== nextRange.start ||
+      canonicalRange.end !== nextRange.end;
+    const viewDate = normalized
+      ? getViewDate(canonicalRange) ?? cell.date
+      : cell.date;
+    viewYear.set(viewDate.getFullYear());
+    viewMonth.set(viewDate.getMonth());
+    updateView();
   }
 
   function handleYearChange(value: string): void {
+    if (props.disabled) return;
     const nextYear = Number(value);
 
     if (Number.isNaN(nextYear)) {
@@ -308,6 +327,7 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
   }
 
   function handleMonthChange(value: string): void {
+    if (props.disabled) return;
     const nextMonth = Number(value);
 
     if (Number.isNaN(nextMonth) || nextMonth < 0 || nextMonth > 11) {
@@ -331,6 +351,7 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
           type="button"
           data-part="nav-button"
           aria-label="Previous month"
+          disabled={props.disabled}
           style={props.styles?.navButton}
           onClick={prevMonth}
         >
@@ -347,6 +368,7 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
             >
               <HlSelect
                 ariaLabel="Choose month"
+                disabled={props.disabled}
                 value={monthValue}
                 options={MONTH_OPTIONS}
                 useFloatingLayer={false}
@@ -363,6 +385,7 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
             >
               <HlSelect
                 ariaLabel="Choose year"
+                disabled={props.disabled}
                 value={yearValue}
                 options={yearOptions}
                 useFloatingLayer={false}
@@ -379,6 +402,7 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
           type="button"
           data-part="nav-button"
           aria-label="Next month"
+          disabled={props.disabled}
           style={props.styles?.navButton}
           onClick={nextMonth}
         >
@@ -386,159 +410,169 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
         </button>
       </div>
       <div data-part="grid" role="grid" style={props.styles?.grid}>
-        {WEEKDAYS.map((day) => (
-          <span
-            data-part="weekday"
-            role="columnheader"
-            style={props.styles?.weekday}
-          >
-            {day}
-          </span>
-        ))}
-        <For each={days}>
-          {(cellPulse) => {
-            const cell = cellPulse.get();
-            const dateStr = formatDate(cell.date);
-            const isToday = dateStr === todayStr;
-            const range = state.state.get();
-            const normalizedStart =
-              range.start !== "" &&
-              range.end !== "" &&
-              compareIsoDates(range.start, range.end) > 0
-                ? range.end
-                : range.start;
-            const normalizedEnd =
-              range.start !== "" &&
-              range.end !== "" &&
-              compareIsoDates(range.start, range.end) > 0
-                ? range.start
-                : range.end;
-            const isRangeStart =
-              normalizedStart !== "" && dateStr === normalizedStart;
-            const isRangeEnd =
-              normalizedEnd !== "" && dateStr === normalizedEnd;
-            const isSelected = isRangeStart || isRangeEnd;
-            const isInRange =
-              normalizedStart !== "" &&
-              normalizedEnd !== "" &&
-              compareIsoDates(dateStr, normalizedStart) > 0 &&
-              compareIsoDates(dateStr, normalizedEnd) < 0;
-            const rangeEdge =
-              isRangeStart && isRangeEnd
-                ? "single"
-                : isRangeStart
-                  ? "start"
-                  : isRangeEnd
-                    ? "end"
-                    : null;
-            const dayNumber = derived(cellPulse, (c) => c.day);
-            return (
-              <button
-                type="button"
-                data-part="day"
-                data-outside={cell.outside}
-                data-in-range={isInRange ? "true" : undefined}
-                data-range-edge={rangeEdge ?? undefined}
-                role="gridcell"
-                aria-selected={isSelected || isInRange ? "true" : "false"}
-                aria-current={isToday ? "date" : undefined}
-                style={props.styles?.day?.(
-                  isSelected,
-                  isInRange,
-                  isToday,
-                  cell.outside,
-                )}
-                ref={(el) => {
-                  function update(): void {
-                    const c = cellPulse.get();
-                    const nextDateStr = formatDate(c.date);
-                    const nextRange = state.state.get();
-                    const nextStart =
-                      nextRange.start !== "" &&
-                      nextRange.end !== "" &&
-                      compareIsoDates(nextRange.start, nextRange.end) > 0
-                        ? nextRange.end
-                        : nextRange.start;
-                    const nextEnd =
-                      nextRange.start !== "" &&
-                      nextRange.end !== "" &&
-                      compareIsoDates(nextRange.start, nextRange.end) > 0
-                        ? nextRange.start
-                        : nextRange.end;
-                    const selStart =
-                      nextStart !== "" && nextDateStr === nextStart;
-                    const selEnd = nextEnd !== "" && nextDateStr === nextEnd;
-                    const selected = selStart || selEnd;
-                    const inRange =
-                      nextStart !== "" &&
-                      nextEnd !== "" &&
-                      compareIsoDates(nextDateStr, nextStart) > 0 &&
-                      compareIsoDates(nextDateStr, nextEnd) < 0;
-                    const edge =
-                      selStart && selEnd
-                        ? "single"
-                        : selStart
-                          ? "start"
-                          : selEnd
-                            ? "end"
-                            : null;
-                    const today = nextDateStr === todayStr;
-                    (el as HTMLButtonElement).setAttribute(
-                      "aria-selected",
-                      String(selected || inRange),
-                    );
-                    (el as HTMLButtonElement).setAttribute(
-                      "data-outside",
-                      String(c.outside),
-                    );
-                    if (inRange) {
-                      (el as HTMLButtonElement).setAttribute(
-                        "data-in-range",
-                        "true",
-                      );
-                    } else {
-                      (el as HTMLButtonElement).removeAttribute(
-                        "data-in-range",
-                      );
-                    }
-                    if (edge !== null) {
-                      (el as HTMLButtonElement).setAttribute(
-                        "data-range-edge",
-                        edge,
-                      );
-                    } else {
-                      (el as HTMLButtonElement).removeAttribute(
-                        "data-range-edge",
-                      );
-                    }
-                    if (today) {
-                      (el as HTMLButtonElement).setAttribute(
-                        "aria-current",
-                        "date",
-                      );
-                    } else {
-                      (el as HTMLButtonElement).removeAttribute("aria-current");
-                    }
-                    if (props.styles?.day) {
-                      (el as HTMLElement).style.cssText = props.styles.day(
-                        selected,
-                        inRange,
-                        today,
-                        c.outside,
-                      );
-                    }
-                  }
-                  state.state.on(update);
-                  cellPulse.on(update);
+        <div data-part="weekdays" role="row">
+          {WEEKDAYS.map((day) => (
+            <span
+              data-part="weekday"
+              role="columnheader"
+              style={props.styles?.weekday}
+            >
+              {day}
+            </span>
+          ))}
+        </div>
+        <For each={weeks}>
+          {(week) => (
+            <div data-part="week" role="row">
+              <For each={week}>
+                {(cellPulse) => {
+                  const cell = cellPulse.get();
+                  const dateStr = formatDate(cell.date);
+                  const isToday = dateStr === todayStr;
+                  const range = state.state.get();
+                  const normalizedStart =
+                    range.start !== "" &&
+                    range.end !== "" &&
+                    compareIsoDates(range.start, range.end) > 0
+                      ? range.end
+                      : range.start;
+                  const normalizedEnd =
+                    range.start !== "" &&
+                    range.end !== "" &&
+                    compareIsoDates(range.start, range.end) > 0
+                      ? range.start
+                      : range.end;
+                  const isRangeStart =
+                    normalizedStart !== "" && dateStr === normalizedStart;
+                  const isRangeEnd =
+                    normalizedEnd !== "" && dateStr === normalizedEnd;
+                  const isSelected = isRangeStart || isRangeEnd;
+                  const isInRange =
+                    normalizedStart !== "" &&
+                    normalizedEnd !== "" &&
+                    compareIsoDates(dateStr, normalizedStart) > 0 &&
+                    compareIsoDates(dateStr, normalizedEnd) < 0;
+                  const rangeEdge =
+                    isRangeStart && isRangeEnd
+                      ? "single"
+                      : isRangeStart
+                        ? "start"
+                        : isRangeEnd
+                          ? "end"
+                          : null;
+                  const dayNumber = derived(cellPulse, (c) => c.day);
+                  onCleanup(() => dayNumber.destroy?.());
+                  return (
+                    <button
+                      type="button"
+                      data-part="day"
+                      data-outside={cell.outside}
+                      data-in-range={isInRange ? "true" : undefined}
+                      data-range-edge={rangeEdge ?? undefined}
+                      role="gridcell"
+                      disabled={props.disabled}
+                      aria-selected={isSelected || isInRange ? "true" : "false"}
+                      aria-current={isToday ? "date" : undefined}
+                      style={props.styles?.day?.(
+                        isSelected,
+                        isInRange,
+                        isToday,
+                        cell.outside,
+                      )}
+                      ref={(el) => {
+                        function update(): void {
+                          const c = cellPulse.get();
+                          const nextDateStr = formatDate(c.date);
+                          const nextRange = state.state.get();
+                          const nextStart =
+                            nextRange.start !== "" &&
+                            nextRange.end !== "" &&
+                            compareIsoDates(nextRange.start, nextRange.end) > 0
+                              ? nextRange.end
+                              : nextRange.start;
+                          const nextEnd =
+                            nextRange.start !== "" &&
+                            nextRange.end !== "" &&
+                            compareIsoDates(nextRange.start, nextRange.end) > 0
+                              ? nextRange.start
+                              : nextRange.end;
+                          const selStart =
+                            nextStart !== "" && nextDateStr === nextStart;
+                          const selEnd = nextEnd !== "" && nextDateStr === nextEnd;
+                          const selected = selStart || selEnd;
+                          const inRange =
+                            nextStart !== "" &&
+                            nextEnd !== "" &&
+                            compareIsoDates(nextDateStr, nextStart) > 0 &&
+                            compareIsoDates(nextDateStr, nextEnd) < 0;
+                          const edge =
+                            selStart && selEnd
+                              ? "single"
+                              : selStart
+                                ? "start"
+                                : selEnd
+                                  ? "end"
+                                  : null;
+                          const today = nextDateStr === todayStr;
+                          (el as HTMLButtonElement).setAttribute(
+                            "aria-selected",
+                            String(selected || inRange),
+                          );
+                          (el as HTMLButtonElement).setAttribute(
+                            "data-outside",
+                            String(c.outside),
+                          );
+                          if (inRange) {
+                            (el as HTMLButtonElement).setAttribute(
+                              "data-in-range",
+                              "true",
+                            );
+                          } else {
+                            (el as HTMLButtonElement).removeAttribute(
+                              "data-in-range",
+                            );
+                          }
+                          if (edge !== null) {
+                            (el as HTMLButtonElement).setAttribute(
+                              "data-range-edge",
+                              edge,
+                            );
+                          } else {
+                            (el as HTMLButtonElement).removeAttribute(
+                              "data-range-edge",
+                            );
+                          }
+                          if (today) {
+                            (el as HTMLButtonElement).setAttribute(
+                              "aria-current",
+                              "date",
+                            );
+                          } else {
+                            (el as HTMLButtonElement).removeAttribute("aria-current");
+                          }
+                          if (props.styles?.day) {
+                            (el as HTMLElement).style.cssText = props.styles.day(
+                              selected,
+                              inRange,
+                              today,
+                              c.outside,
+                            );
+                          }
+                        }
+                        onCleanup(state.state.on(update));
+                        onCleanup(cellPulse.on(update));
+                      }}
+                      onClick={(event: MouseEvent) =>
+                        selectDay(cellPulse.get(), event)
+                      }
+                    >
+                      {dayNumber}
+                    </button>
+                  );
                 }}
-                onClick={(event: MouseEvent) =>
-                  selectDay(cellPulse.get(), event)
-                }
-              >
-                {dayNumber}
-              </button>
-            );
-          }}
+              </For>
+            </div>
+          )}
         </For>
       </div>
     </div>

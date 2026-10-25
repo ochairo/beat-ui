@@ -331,7 +331,6 @@ export const HlDateRangeInput = component<DateRangeInputProps>((props) => {
           <button
             type="button"
             data-part="icon-button"
-            tabIndex={-1}
             disabled={props.disabled}
             aria-label="Toggle date range calendar"
             style={props.styles?.iconButton}

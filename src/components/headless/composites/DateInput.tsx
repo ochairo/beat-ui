@@ -280,25 +280,34 @@ export const HlDateInput = component<DateInputProps>((props) => {
     };
   }
 
+  function syncFromValue(value: string): void {
+    const parsed = parseDigits(value, slotCount);
+    for (let i = 0; i < slotCount; i++) slots[i] = parsed[i] ?? null;
+    display.set(buildDisplay(slots, format, slotPositions));
+  }
+
   function syncFromSlots(event?: Event): void {
     syncingFromSlots = true;
-    const text = buildDisplay(slots, format, slotPositions);
-    display.set(text);
-    if (slots.every((s) => s !== null)) {
-      state.setValue(buildValue(slots, format, slotPositions), event);
-    } else if (slots.every((s) => s === null)) {
-      state.setValue("", event);
+    try {
+      display.set(buildDisplay(slots, format, slotPositions));
+      const complete = slots.every((slot) => slot !== null);
+      if (complete || slots.every((slot) => slot === null)) {
+        const value = complete ? buildValue(slots, format, slotPositions) : "";
+        state.setValue(value, event);
+        // A caller may normalize the committed value while synchronization is guarded.
+        const canonicalValue = state.state.get();
+        if (canonicalValue !== value) syncFromValue(canonicalValue);
+      }
+    } finally {
+      syncingFromSlots = false;
     }
-    syncingFromSlots = false;
   }
 
   // When the value changes externally (e.g. calendar selection), sync back to display and slots.
   onCleanup(
     state.state.on(({ currentValue }) => {
       if (syncingFromSlots) return;
-      const parsed = parseDigits(currentValue, slotCount);
-      for (let i = 0; i < slotCount; i++) slots[i] = parsed[i] ?? null;
-      display.set(buildDisplay(slots, format, slotPositions));
+      syncFromValue(currentValue);
     }),
   );
 

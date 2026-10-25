@@ -799,6 +799,10 @@ const SheetImpl = <Row,>(props: SheetProps<Row>): BeatJsxChild => {
 
   return (
     <div
+      role="grid"
+      aria-label={props.ariaLabel}
+      aria-labelledby={props.ariaLabelledby}
+      aria-describedby={props.ariaDescribedby}
       class={joinClasses(css["frame"]!, props.classNames?.frame, props.class)}
       style={joinStyles(
         props.styles?.frame,
@@ -848,10 +852,8 @@ const SheetImpl = <Row,>(props: SheetProps<Row>): BeatJsxChild => {
           >
             <HeadlessSheetRoot
               controller={controller}
+              role="presentation"
               class={joinClasses(css["root"]!, props.classNames?.root)}
-              ariaLabel={props.ariaLabel}
-              ariaLabelledby={props.ariaLabelledby}
-              ariaDescribedby={props.ariaDescribedby}
               dataAttributes={rootDataAttributes}
               style={props.styles?.root}
             >
@@ -874,10 +876,8 @@ const SheetImpl = <Row,>(props: SheetProps<Row>): BeatJsxChild => {
         >
           <HeadlessSheetRoot
             controller={controller}
+            role="presentation"
             class={joinClasses(css["root"]!, props.classNames?.root)}
-            ariaLabel={props.ariaLabel}
-            ariaLabelledby={props.ariaLabelledby}
-            ariaDescribedby={props.ariaDescribedby}
             dataAttributes={rootDataAttributes}
             style={props.styles?.root}
           >

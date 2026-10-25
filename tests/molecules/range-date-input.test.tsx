@@ -14,6 +14,68 @@ function findCurrentMonthDayButton(
 }
 
 describe("DateRangeInput", () => {
+  it("reconciles the active field when a completed edit reorders the range", () => {
+    const target = document.createElement("div");
+    const value = pulse<DateRangeValue>({
+      start: "2025-06-15",
+      end: "2025-06-18",
+    });
+    const cleanup = render(target, <DateRangeInput value={value} />);
+
+    try {
+      const start = target.querySelector<HTMLInputElement>(
+        "input[aria-label='Start date']",
+      );
+      const end = target.querySelector<HTMLInputElement>(
+        "input[aria-label='End date']",
+      );
+      if (!start || !end) throw new Error("Missing range inputs");
+
+      start.setSelectionRange(3, 4);
+      start.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "6", bubbles: true }),
+      );
+
+      expect(value.get()).toEqual({ start: "2025-06-18", end: "2026-06-15" });
+      expect(start.value).toBe("2025-06-18");
+      expect(end.value).toBe("2026-06-15");
+
+      // A subsequent edit must use the reconciled slots as well as the display.
+      start.setSelectionRange(9, 10);
+      start.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "9", bubbles: true }),
+      );
+      expect(value.get()).toEqual({ start: "2025-06-19", end: "2026-06-15" });
+      expect(start.value).toBe("2025-06-19");
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("keeps the calendar toggle in the native tab order", () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const cleanup = render(target, <DateRangeInput />);
+
+    try {
+      const toggle = target.querySelector<HTMLButtonElement>(
+        "button[aria-label='Toggle date range calendar']",
+      );
+      const dialog = target.querySelector<HTMLElement>("[role='dialog']");
+      if (!toggle || !dialog) throw new Error("Missing range calendar controls");
+
+      expect(toggle.disabled).toBe(false);
+      expect(toggle.tabIndex).toBe(0);
+      toggle.focus();
+      expect(document.activeElement).toBe(toggle);
+      toggle.click();
+      expect(dialog.style.display).toBe("");
+    } finally {
+      cleanup();
+      target.remove();
+    }
+  });
+
   it("renders start and end inputs with derived ids and names", () => {
     const target = document.createElement("div");
 

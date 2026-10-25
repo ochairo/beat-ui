@@ -117,6 +117,102 @@ function renderSheet(
 }
 
 describe("Sheet", () => {
+  it("selects a focused cell when only the public active coordinate was set", async () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const { cleanup, controller } = renderSheet(target);
+    try {
+      await Promise.resolve();
+      controller.activeCell.set({ rowIndex: 1, columnIndex: 1 });
+      expect(controller.selection.get()).toBeNull();
+      getCellButton(getCell(target, 1, 1)).focus();
+      expect(controller.selection.get()).toEqual({
+        anchorRowIndex: 1,
+        anchorColumnIndex: 1,
+        focusRowIndex: 1,
+        focusColumnIndex: 1,
+      });
+    } finally {
+      cleanup();
+      target.remove();
+    }
+  });
+
+  it("preserves a keyboard range when navigation focuses another cell", async () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const { cleanup } = renderSheet(target);
+    try {
+      await Promise.resolve();
+      const first = getCellButton(getCell(target, 0, 0));
+      const next = getCellButton(getCell(target, 0, 1));
+      const last = getCellButton(getCell(target, 1, 1));
+      first.focus();
+      first.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          key: "ArrowRight",
+          shiftKey: true,
+        }),
+      );
+      expect(document.activeElement).toBe(next);
+      next.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          key: "ArrowDown",
+          shiftKey: true,
+        }),
+      );
+      expect(document.activeElement).toBe(last);
+      expect(
+        target.querySelectorAll('[data-sheet-cell="true"][data-selected="true"]'),
+      ).toHaveLength(4);
+
+      first.focus();
+      expect(
+        target.querySelectorAll('[data-sheet-cell="true"][data-selected="true"]'),
+      ).toHaveLength(1);
+      expect(getCell(target, 0, 0)?.getAttribute("data-selected")).toBe("true");
+      first.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowDown" }),
+      );
+      expect(document.activeElement).toBe(getCellButton(getCell(target, 1, 0)));
+      expect(
+        target.querySelectorAll('[data-sheet-cell="true"][data-selected="true"]'),
+      ).toHaveLength(1);
+    } finally {
+      cleanup();
+      target.remove();
+    }
+  });
+
+  it("preserves select-all when focus returns to the first cell", async () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const { cleanup } = renderSheet(target);
+    try {
+      await Promise.resolve();
+      const last = getCellButton(getCell(target, 1, 1));
+      last.focus();
+      last.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          bubbles: true,
+          key: "a",
+          ctrlKey: true,
+        }),
+      );
+      expect(document.activeElement).toBe(getCellButton(getCell(target, 0, 0)));
+      expect(
+        target.querySelectorAll('[data-sheet-cell="true"][data-selected="true"]'),
+      ).toHaveLength(4);
+      expect(getColumnHeader(target, 0)?.getAttribute("data-selected")).toBe("true");
+      expect(getColumnHeader(target, 1)?.getAttribute("data-selected")).toBe("true");
+    } finally {
+      cleanup();
+      target.remove();
+    }
+  });
+
   it("supports drag selection and editing", async () => {
     const target = document.createElement("div");
     const { cleanup, cells, controller } = renderSheet(target);

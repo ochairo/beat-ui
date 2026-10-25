@@ -2330,9 +2330,15 @@ export const SheetCell = component<SheetCellProps>((props) => {
                 element,
               );
             }}
-            onFocus={() =>
-              resolvedController.activateCell(coord, { focus: false })
-            }
+            onFocus={() => {
+              // Controller-driven focus already has the intended range selection.
+              if (
+                !resolvedController.isCellActive(coord) ||
+                !resolvedController.isCellSelected(coord)
+              ) {
+                resolvedController.activateCell(coord, { focus: false });
+              }
+            }}
             onMouseDown={(event: MouseEvent) => {
               resolvedController.beginSelectionDrag(coord, {
                 extend: event.shiftKey,

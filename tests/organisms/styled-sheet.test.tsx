@@ -52,6 +52,58 @@ function createClipboardData(text = "") {
 }
 
 describe("styled Sheet", () => {
+  it.each([true, false])(
+    "keeps column headers and body cells in one named grid (sticky header: %s)",
+    (stickyHeader) => {
+      const target = document.createElement("div");
+      const rows = [{ name: pulse("Alpha") }];
+      const cleanup = render(
+        target,
+        <ThemeRoot>
+          <h2 id="sheet-heading">Inventory</h2>
+          <p id="sheet-description">Editable inventory names</p>
+          <Sheet
+            ariaLabel="Fallback inventory label"
+            ariaLabelledby="sheet-heading"
+            ariaDescribedby="sheet-description"
+            stickyHeader={stickyHeader}
+            rows={rows}
+            columns={[
+              {
+                id: "name",
+                title: "Name",
+                width: "12rem",
+                getValueState: (row) => row.name,
+              },
+            ]}
+          />
+        </ThemeRoot>,
+      );
+
+      const grid = target.querySelector('[role="grid"]');
+      const header = getColumnHeader(target, 0);
+      const cell = getCell(target, 0, 0);
+      expect(grid).not.toBeNull();
+      expect(header).not.toBeNull();
+      expect(cell).not.toBeNull();
+      expect(target.querySelectorAll('[role="grid"]')).toHaveLength(1);
+      expect(header?.closest('[role="grid"]')).toBe(grid);
+      expect(cell?.closest('[role="grid"]')).toBe(grid);
+      expect(grid?.getAttribute("aria-label")).toBe("Fallback inventory label");
+      expect(grid?.getAttribute("aria-labelledby")).toBe("sheet-heading");
+      expect(grid?.getAttribute("aria-describedby")).toBe("sheet-description");
+      expect(grid?.hasAttribute("tabindex")).toBe(false);
+      for (const root of target.querySelectorAll('[data-sheet-root="true"]')) {
+        expect(root.getAttribute("role")).toBe("presentation");
+        expect(root.hasAttribute("aria-label")).toBe(false);
+        expect(root.hasAttribute("aria-labelledby")).toBe(false);
+        expect(root.hasAttribute("aria-describedby")).toBe(false);
+      }
+
+      cleanup();
+    },
+  );
+
   it("renders sticky first-column styles and keeps selection copy working", () => {
     const target = document.createElement("div");
     const rows = [

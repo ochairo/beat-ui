@@ -112,9 +112,15 @@
 
 .root [data-part="grid"] {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
   gap: 0.125rem;
   text-align: center;
+}
+
+.root [data-part="weekdays"],
+.root [data-part="week"] {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.125rem;
 }
 
 .root [data-part="weekday"] {
