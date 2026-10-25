@@ -26,6 +26,16 @@
   background: var(--beat-ui-color-background);
 }
 
+.headerViewport {
+  flex: 0 0 auto;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  isolation: isolate;
+  padding-right: var(--beat-ui-sheet-scrollbar-gutter, 0px);
+  background: var(--beat-ui-color-background);
+}
+
 .root {
   width: max-content;
   min-width: 100%;
@@ -36,6 +46,15 @@
 .header {
   position: sticky;
   top: 0;
+  width: max-content;
+  min-width: 100%;
+  z-index: var(--beat-ui-z-index-overlay, 30);
+  isolation: isolate;
+  background: var(--beat-ui-color-background-subtle);
+  box-shadow: 0 1px 0 var(--beat-ui-color-border-strong);
+}
+
+.splitHeader {
   width: max-content;
   min-width: 100%;
   z-index: var(--beat-ui-z-index-overlay, 30);

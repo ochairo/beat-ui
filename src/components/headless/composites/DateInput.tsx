@@ -9,6 +9,7 @@ import {
 } from "../../../foundations";
 import type { BeatUiRenderable } from "../../../runtime";
 import {
+  isFocusLeavingFloatingLayer,
   isWithinFloatingLayer,
   moveFloatingLayerToHost,
   positionFloatingLayer,
@@ -211,17 +212,27 @@ function cursorAfterFill(
   return formatLength;
 }
 
+function isCalendarDayCellTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    target.closest("button[role='gridcell']") !== null
+  );
+}
+
 export const HlDateInput = component<DateInputProps>((props) => {
   const format = props.format ?? DEFAULT_FORMAT;
   const slotPositions = buildSlotPositions(format);
   const slotCount = slotPositions.length;
   const meta = buildSlotMeta(format, slotPositions);
+  const supportsCalendar = props.calendar != null;
+  const showsCalendarButton = props.icon != null || supportsCalendar;
   const calendarAlign = resolveFloatingHorizontalAlign(
     props.styles?.calendarWrapper,
   );
 
   const isOpen = pulse(false);
   let rootEl: HTMLDivElement | null = null;
+  let inputEl: HTMLInputElement | null = null;
   let calendarWrapperEl: HTMLElement | null = null;
   let cleanupCalendarTracking: (() => void) | null = null;
   const slots: (string | null)[] = Array.from<string | null>({
@@ -271,34 +282,47 @@ export const HlDateInput = component<DateInputProps>((props) => {
     };
   }
 
+  function syncFromValue(value: string): void {
+    const parsed = parseDigits(value, slotCount);
+    for (let i = 0; i < slotCount; i++) slots[i] = parsed[i] ?? null;
+    display.set(buildDisplay(slots, format, slotPositions));
+  }
+
   function syncFromSlots(event?: Event): void {
     syncingFromSlots = true;
-    const text = buildDisplay(slots, format, slotPositions);
-    display.set(text);
-    if (slots.every((s) => s !== null)) {
-      state.setValue(buildValue(slots, format, slotPositions), event);
-    } else if (slots.every((s) => s === null)) {
-      state.setValue("", event);
+    try {
+      display.set(buildDisplay(slots, format, slotPositions));
+      const complete = slots.every((slot) => slot !== null);
+      if (complete || slots.every((slot) => slot === null)) {
+        const value = complete ? buildValue(slots, format, slotPositions) : "";
+        state.setValue(value, event);
+        // A caller may normalize the committed value while synchronization is guarded.
+        const canonicalValue = state.state.get();
+        if (canonicalValue !== value) syncFromValue(canonicalValue);
+      }
+    } finally {
+      syncingFromSlots = false;
     }
-    syncingFromSlots = false;
   }
 
   // When the value changes externally (e.g. calendar selection), sync back to display and slots.
   onCleanup(
     state.state.on(({ currentValue }) => {
       if (syncingFromSlots) return;
-      const parsed = parseDigits(currentValue, slotCount);
-      for (let i = 0; i < slotCount; i++) slots[i] = parsed[i] ?? null;
-      display.set(buildDisplay(slots, format, slotPositions));
+      syncFromValue(currentValue);
     }),
   );
 
   function toggleCalendar(): void {
-    if (props.disabled || props.readOnly) return;
+    if (!supportsCalendar || props.disabled || props.readOnly) return;
     isOpen.set(!isOpen.get());
   }
 
   function handleDocumentClick(event: MouseEvent): void {
+    if (!supportsCalendar) {
+      return;
+    }
+
     if (
       !isWithinFloatingLayer(
         event.target as Node | null,
@@ -312,6 +336,10 @@ export const HlDateInput = component<DateInputProps>((props) => {
 
   function handleInput(event: Event): void {
     const input = event.currentTarget as HTMLInputElement;
+    if (props.readOnly || props.disabled) {
+      input.value = display.get();
+      return;
+    }
     const digits = input.value.replace(/\D/g, "").slice(0, slotCount);
     const parsed = parseDigits(digits, slotCount);
     for (let i = 0; i < slotCount; i++) {
@@ -332,6 +360,7 @@ export const HlDateInput = component<DateInputProps>((props) => {
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
+    if (props.readOnly || props.disabled) return;
     const input = event.currentTarget as HTMLInputElement;
     const cursor = input.selectionStart ?? 0;
 
@@ -427,16 +456,30 @@ export const HlDateInput = component<DateInputProps>((props) => {
     }
   }
 
+  function handleFocusOut(event: FocusEvent): void {
+    if (rootEl && isFocusLeavingFloatingLayer(event, rootEl, calendarWrapperEl)) {
+      props.onBlur?.(event);
+    }
+  }
+
   return (
     <div
       class={props.containerClass}
       style={props.styles?.root}
       ref={(el) => {
-        rootEl = el as HTMLDivElement;
-        document.addEventListener("click", handleDocumentClick, true);
+        if (!(el instanceof HTMLDivElement)) return;
+        rootEl = el;
+        el.addEventListener("focusout", handleFocusOut);
+        if (supportsCalendar) {
+          document.addEventListener("click", handleDocumentClick, true);
+        }
         onCleanup(() => {
+          el.removeEventListener("focusout", handleFocusOut);
+          if (rootEl === el) rootEl = null;
           stopCalendarTracking();
-          document.removeEventListener("click", handleDocumentClick, true);
+          if (supportsCalendar) {
+            document.removeEventListener("click", handleDocumentClick, true);
+          }
         });
       }}
     >
@@ -447,6 +490,13 @@ export const HlDateInput = component<DateInputProps>((props) => {
       >
         <div style="position:relative;flex:1;min-width:0;align-self:stretch;height:100%">
           <input
+            ref={(el) => {
+              if (!(el instanceof HTMLInputElement)) return;
+              inputEl = el;
+              onCleanup(() => {
+                if (inputEl === el) inputEl = null;
+              });
+            }}
             type="text"
             data-part="input"
             id={props.id}
@@ -467,13 +517,6 @@ export const HlDateInput = component<DateInputProps>((props) => {
             onInput={handleInput}
             onKeyDown={handleKeyDown}
             onFocus={props.onFocus}
-            onBlur={(event: FocusEvent) => {
-              const rel = (event as FocusEvent & { relatedTarget: Node | null })
-                .relatedTarget;
-              if (!isWithinFloatingLayer(rel, rootEl, calendarWrapperEl)) {
-                props.onBlur?.(event);
-              }
-            }}
           />
           <div
             data-part="input-overlay"
@@ -506,57 +549,69 @@ export const HlDateInput = component<DateInputProps>((props) => {
             }}
           />
         </div>
-        <button
-          type="button"
-          data-part="icon-button"
-          tabIndex={-1}
-          disabled={props.disabled}
-          aria-label="Toggle calendar"
-          style={props.styles?.iconButton}
-          onMouseDown={(event: MouseEvent) => event.preventDefault()}
-          onClick={toggleCalendar}
-        >
-          {props.icon}
-        </button>
+        {showsCalendarButton ? (
+          <button
+            type="button"
+            data-part="icon-button"
+            tabIndex={-1}
+            disabled={props.disabled}
+            aria-label="Toggle calendar"
+            style={props.styles?.iconButton}
+            onMouseDown={(event: MouseEvent) => event.preventDefault()}
+            onClick={toggleCalendar}
+          >
+            {props.icon}
+          </button>
+        ) : null}
       </div>
-      <div
-        data-part="calendar-wrapper"
-        data-beat-ui-date-input-popup="true"
-        role="dialog"
-        style={props.styles?.calendarWrapper}
-        ref={(el) => {
-          const htmlEl = el as HTMLElement;
-          calendarWrapperEl = htmlEl;
-          htmlEl.style.display = "none";
-          if (htmlEl.style.zIndex === "") {
-            htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
-          }
-          onCleanup(() => {
-            if (calendarWrapperEl === htmlEl) {
-              calendarWrapperEl = null;
+      {supportsCalendar ? (
+        <div
+          data-part="calendar-wrapper"
+          data-beat-ui-date-input-popup="true"
+          role="dialog"
+          style={props.styles?.calendarWrapper}
+          onClick={(event: MouseEvent) => {
+            if (isOpen.get() && isCalendarDayCellTarget(event.target)) {
+              inputEl?.focus();
+              isOpen.set(false);
             }
-          });
-          onCleanup(scheduleFloatingLayerMount(htmlEl));
-          onCleanup(
-            isOpen.on(({ currentValue }) => {
-              htmlEl.style.display = currentValue ? "" : "none";
-              if (currentValue) {
-                htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
-                moveFloatingLayerToHost(htmlEl);
-                startCalendarTracking();
-                updateCalendarPosition();
-                requestAnimationFrame(() => {
-                  if (isOpen.get()) updateCalendarPosition();
-                });
-                return;
+          }}
+          ref={(el) => {
+            const htmlEl = el as HTMLElement;
+            calendarWrapperEl = htmlEl;
+            htmlEl.addEventListener("focusout", handleFocusOut);
+            htmlEl.style.display = "none";
+            if (htmlEl.style.zIndex === "") {
+              htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
+            }
+            onCleanup(() => {
+              htmlEl.removeEventListener("focusout", handleFocusOut);
+              if (calendarWrapperEl === htmlEl) {
+                calendarWrapperEl = null;
               }
-              stopCalendarTracking();
-            }),
-          );
-        }}
-      >
-        {props.calendar}
-      </div>
+            });
+            onCleanup(scheduleFloatingLayerMount(htmlEl));
+            onCleanup(
+              isOpen.on(({ currentValue }) => {
+                htmlEl.style.display = currentValue ? "" : "none";
+                if (currentValue) {
+                  htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
+                  moveFloatingLayerToHost(htmlEl);
+                  startCalendarTracking();
+                  updateCalendarPosition();
+                  requestAnimationFrame(() => {
+                    if (isOpen.get()) updateCalendarPosition();
+                  });
+                  return;
+                }
+                stopCalendarTracking();
+              }),
+            );
+          }}
+        >
+          {props.calendar}
+        </div>
+      ) : null}
     </div>
   );
 });

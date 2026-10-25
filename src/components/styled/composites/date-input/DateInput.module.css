@@ -7,6 +7,7 @@
 .root [data-part="input-wrapper"] {
   display: flex;
   align-items: center;
+  height: var(--beat-ui-control-height);
   border-radius: 0.875rem;
   overflow: hidden;
   border: 1px solid var(--beat-ui-color-border);
@@ -21,7 +22,8 @@
 .root [data-part="input"] {
   width: 100%;
   box-sizing: border-box;
-  min-height: 2.75rem;
+  height: 100%;
+  min-height: 0;
   padding: 0.75rem 0.875rem;
   border: none;
   background: transparent;
@@ -53,9 +55,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
-  width: 2.75rem;
-  padding: 0;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  flex: 0 0 auto;
+  width: calc(var(--beat-ui-control-height) + 0.625rem);
+  padding: 0 0.95rem 0 0.25rem;
   border: none;
   background: transparent;
   color: var(--beat-ui-color-text-muted);

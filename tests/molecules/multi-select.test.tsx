@@ -1,10 +1,10 @@
-import { render } from "@ochairo/beat";
+import { render, type BeatJsxChild } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 import { describe, expect, it } from "vitest";
 
 import { MultiSelect, ThemeRoot } from "../../src";
 
-function renderMultiSelect(target: HTMLElement, view: JSX.Element): () => void {
+function renderMultiSelect(target: HTMLElement, view: BeatJsxChild): () => void {
   return render(target, <ThemeRoot>{view}</ThemeRoot>);
 }
 
@@ -92,7 +92,7 @@ describe("MultiSelect", () => {
   it("fires onValueChange callback", () => {
     const target = document.createElement("div");
     const value = pulse<readonly string[]>([]);
-    const changes: readonly string[][] = [];
+    const changes: (readonly string[])[] = [];
 
     const cleanup = renderMultiSelect(
       target,

@@ -17,7 +17,7 @@ describe("ThemeRoot", () => {
     const root = target.firstElementChild;
 
     expect(root).toBeInstanceOf(HTMLDivElement);
-    expect((root as HTMLDivElement).dataset.beatUiRoot).toBe("true");
+    expect((root as HTMLDivElement).dataset["beatUiRoot"]).toBe("true");
 
     cleanup();
   });

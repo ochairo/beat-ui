@@ -405,13 +405,16 @@ export const HlSelect = component<SelectProps>((props) => {
   }
 
   function closeMenu(): void {
+    // Restore focus before removing the focused menu from its composite.
+    triggerEl?.focus();
     isOpen.set(false);
     highlightedIndex.set(-1);
     searchQuery.set("");
-    triggerEl?.focus();
   }
 
   function selectOption(value: string): void {
+    // Consumer callbacks can synchronously replace the focused option list.
+    triggerEl?.focus();
     state.setValue(value);
     closeMenu();
   }

@@ -1,14 +1,72 @@
-import { render } from "@ochairo/beat";
+import { render, type BeatJsxChild } from "@ochairo/beat";
 import { pulse } from "@ochairo/pulse";
 import { describe, expect, it } from "vitest";
 
 import { Select, ThemeRoot } from "../../src";
 
-function renderSelect(target: HTMLElement, view: JSX.Element): () => void {
+function renderSelect(target: HTMLElement, view: BeatJsxChild): () => void {
   return render(target, <ThemeRoot>{view}</ThemeRoot>);
 }
 
 describe("Select", () => {
+  for (const useFloatingLayer of [false, true]) {
+    for (const action of ["selection", "options replacement", "Escape"] as const) {
+      it(`restores focus before ${action} removes the focused ${useFloatingLayer ? "floating" : "inline"} option`, async () => {
+        const target = document.createElement("div");
+        document.body.appendChild(target);
+        const value = pulse("a");
+        const options = pulse([
+          { value: "a", label: "Alpha" },
+          { value: "b", label: "Beta" },
+        ]);
+        const cleanup = renderSelect(
+          target,
+          <Select
+            value={value}
+            options={options}
+            useFloatingLayer={useFloatingLayer}
+            onValueChange={() => {
+              if (action === "options replacement") {
+                options.set([...options.get()]);
+              }
+            }}
+          />,
+        );
+
+        try {
+          const trigger = target.querySelector("button") as HTMLButtonElement;
+          trigger.click();
+          await Promise.resolve();
+          const option = target.querySelectorAll(
+            '[role="option"]',
+          )[1] as HTMLButtonElement;
+          option.focus();
+          expect(document.activeElement).toBe(option);
+          const destinations: (EventTarget | null)[] = [];
+          option.addEventListener("focusout", (event) => {
+            destinations.push(event.relatedTarget);
+          });
+
+          if (action === "Escape") {
+            option.dispatchEvent(
+              new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+            );
+          } else {
+            option.click();
+          }
+
+          expect(destinations).toEqual([trigger]);
+          expect(document.activeElement).toBe(trigger);
+          expect(target.querySelector('[role="listbox"]')).toBeNull();
+          expect(value.get()).toBe(action === "Escape" ? "a" : "b");
+        } finally {
+          cleanup();
+          target.remove();
+        }
+      });
+    }
+  }
+
   it("updates controlled value when an option is clicked", () => {
     const target = document.createElement("div");
     const value = pulse("a");

@@ -59,6 +59,24 @@ export function isWithinFloatingLayer(
   return anchor?.contains(target) === true || layer?.contains(target) === true;
 }
 
+/** Detects one focus exit across an anchor and its separately hosted popup. */
+export function isFocusLeavingFloatingLayer(
+  event: FocusEvent,
+  anchor: Element | null,
+  layer: Element | null,
+): boolean {
+  // The popup owns its events even before it has moved out of the anchor.
+  if (
+    event.currentTarget === anchor &&
+    event.target instanceof Node &&
+    layer?.contains(event.target)
+  ) {
+    return false;
+  }
+  const next = event.relatedTarget instanceof Node ? event.relatedTarget : null;
+  return !isWithinFloatingLayer(next, anchor, layer);
+}
+
 export function resolveFloatingHorizontalAlign(
   style: string | undefined,
 ): FloatingHorizontalAlign {

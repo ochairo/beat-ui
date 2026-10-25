@@ -6,6 +6,8 @@
 }
 
 [data-beat-ui-root] {
+  --beat-ui-control-height: 2.75rem;
+  --beat-ui-control-min-height: var(--beat-ui-control-height);
   --beat-ui-z-index-base: 0;
   --beat-ui-z-index-inline: 1;
   --beat-ui-z-index-raised: 2;
