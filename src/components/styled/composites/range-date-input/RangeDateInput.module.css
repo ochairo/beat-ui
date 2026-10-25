@@ -106,3 +106,9 @@
   left: 0;
   z-index: var(--beat-ui-z-index-popover);
 }
+
+.root [data-part="icon-button"]:focus-visible {
+  outline: 2px solid var(--beat-ui-color-focus-ring);
+  outline-offset: -3px;
+  border-radius: 4px;
+}

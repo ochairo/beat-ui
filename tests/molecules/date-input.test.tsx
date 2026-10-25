@@ -21,6 +21,95 @@ function getCalendarYearLabel(target: HTMLElement): string | null | undefined {
 }
 
 describe("DateInput", () => {
+  it.each(["readOnly", "disabled"] as const)(
+    "blocks editing handlers when %s while preserving external updates",
+    (mode) => {
+      const target = document.createElement("div");
+      const value = pulse("2025-06-15");
+      const seen: string[] = [];
+      const cleanup = render(
+        target,
+        <DateInput
+          value={value}
+          readOnly={mode === "readOnly"}
+          disabled={mode === "disabled"}
+          onValueChange={(next) => seen.push(next)}
+        />,
+      );
+
+      try {
+        const input = target.querySelector("input");
+        if (!input) throw new Error("Missing date input");
+        for (const key of ["6", "Backspace", "Delete"]) {
+          input.setSelectionRange(3, 4);
+          input.dispatchEvent(
+            new KeyboardEvent("keydown", { key, bubbles: true }),
+          );
+          expect(input.value).toBe("2025-06-15");
+        }
+        input.value = "20300615";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        expect(input.value).toBe("2025-06-15");
+        expect(value.get()).toBe("2025-06-15");
+        expect(seen).toEqual([]);
+
+        value.set("2025-07-20");
+        expect(input.value).toBe("2025-07-20");
+      } finally {
+        cleanup();
+      }
+    },
+  );
+
+  it("returns selection focus to the input without firing a composite blur", async () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const blurred: FocusEvent[] = [];
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DateInput
+          defaultValue="2025-06-15"
+          onBlur={(event) => blurred.push(event)}
+        />
+        <button data-after="true">After</button>
+      </ThemeRoot>,
+    );
+
+    try {
+      await Promise.resolve();
+      const input = target.querySelector("input");
+      const toggle = target.querySelector<HTMLButtonElement>(
+        "button[aria-label='Toggle calendar']",
+      );
+      const day = findCalendarDayButton(target);
+      const after = target.querySelector<HTMLButtonElement>("[data-after]");
+      const dialog = target.querySelector<HTMLElement>("[role='dialog']");
+      if (!input || !toggle || !day || !after || !dialog) {
+        throw new Error("Missing date controls");
+      }
+      input.focus();
+      toggle.click();
+      day.focus();
+      day.click();
+      expect(document.activeElement).toBe(input);
+      expect(dialog.style.display).toBe("none");
+      expect(blurred).toEqual([]);
+      after.focus();
+      expect(blurred).toHaveLength(1);
+
+      input.focus();
+      toggle.click();
+      after.focus();
+      after.click();
+      expect(document.activeElement).toBe(after);
+      expect(blurred).toHaveLength(2);
+    } finally {
+      cleanup();
+      target.remove();
+    }
+  });
+
   it("preserves partial typing until a complete date can be committed", () => {
     const target = document.createElement("div");
     const value = pulse("");

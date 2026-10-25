@@ -103,6 +103,11 @@ function parseDate(value: string): Date | undefined {
   return date;
 }
 
+function clampToMonth(date: Date, year: number, month: number): Date {
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  return new Date(year, month, Math.min(date.getDate(), lastDay));
+}
+
 function getYearOptions(
   selectedYear: number,
   range: DateRangePickerYearSelectRange | undefined,
@@ -244,15 +249,49 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
     createYearOptions(getYearOptions(viewYear.get(), props.yearSelectRange)),
   );
   const weeks = pulse(getCalendarWeeks(viewYear.get(), viewMonth.get()));
+  const todayStr = formatDate(now);
+  const selectedStart = parseDate(state.state.get().start);
+  const todayVisible = weeks.get().some((week) =>
+    week.some((cell) => formatDate(cell.date) === todayStr),
+  );
+  const activeDate = pulse(
+    formatDate(
+      selectedStart ??
+        (todayVisible ? now : new Date(viewYear.get(), viewMonth.get(), 1)),
+    ),
+  );
+  let gridElement: HTMLElement | undefined;
   let selectingDay = false;
 
-  function updateView(): void {
+  function updateView(preferredDate?: Date): void {
+    // Capture focus before For updates the dates represented by its reused buttons.
+    const retainFocus = gridElement?.contains(
+      gridElement.ownerDocument.activeElement,
+    );
+    const nextWeeks = getCalendarWeeks(viewYear.get(), viewMonth.get());
+    const nextActive = preferredDate ?? parseDate(activeDate.get()) ?? now;
+    const nextActiveStr = formatDate(nextActive);
+    const activeVisible = nextWeeks.some((week) =>
+      week.some((cell) => formatDate(cell.date) === nextActiveStr),
+    );
+    activeDate.set(
+      formatDate(
+        activeVisible
+          ? nextActive
+          : clampToMonth(nextActive, viewYear.get(), viewMonth.get()),
+      ),
+    );
     monthValue.set(String(viewMonth.get()));
     yearValue.set(String(viewYear.get()));
     yearOptions.set(
       createYearOptions(getYearOptions(viewYear.get(), props.yearSelectRange)),
     );
-    weeks.set(getCalendarWeeks(viewYear.get(), viewMonth.get()));
+    weeks.set(nextWeeks);
+    if (retainFocus && !props.disabled) {
+      gridElement
+        ?.querySelector<HTMLButtonElement>("button[tabindex='0']")
+        ?.focus();
+    }
   }
 
   onCleanup(
@@ -267,8 +306,6 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
     }),
   );
 
-  const todayStr = formatDate(now);
-
   function prevMonth(): void {
     if (props.disabled) return;
     const m = viewMonth.get();
@@ -279,6 +316,48 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
       viewMonth.set(m - 1);
     }
     updateView();
+  }
+
+  function handleDayKeyDown(cell: DayCell, event: KeyboardEvent): void {
+    if (props.disabled) return;
+    const nextDate = new Date(cell.date);
+    switch (event.key) {
+      case "ArrowLeft":
+        nextDate.setDate(nextDate.getDate() - 1);
+        break;
+      case "ArrowRight":
+        nextDate.setDate(nextDate.getDate() + 1);
+        break;
+      case "ArrowUp":
+        nextDate.setDate(nextDate.getDate() - 7);
+        break;
+      case "ArrowDown":
+        nextDate.setDate(nextDate.getDate() + 7);
+        break;
+      case "Home":
+        nextDate.setDate(nextDate.getDate() - nextDate.getDay());
+        break;
+      case "End":
+        nextDate.setDate(nextDate.getDate() + 6 - nextDate.getDay());
+        break;
+      case "PageUp":
+      case "PageDown": {
+        const direction = event.key === "PageUp" ? -1 : 1;
+        const clamped = clampToMonth(
+          nextDate,
+          nextDate.getFullYear() + (event.shiftKey ? direction : 0),
+          nextDate.getMonth() + (event.shiftKey ? 0 : direction),
+        );
+        nextDate.setTime(clamped.getTime());
+        break;
+      }
+      default:
+        return;
+    }
+    event.preventDefault();
+    viewYear.set(nextDate.getFullYear());
+    viewMonth.set(nextDate.getMonth());
+    updateView(nextDate);
   }
 
   function nextMonth(): void {
@@ -311,7 +390,7 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
       : cell.date;
     viewYear.set(viewDate.getFullYear());
     viewMonth.set(viewDate.getMonth());
-    updateView();
+    updateView(viewDate);
   }
 
   function handleYearChange(value: string): void {
@@ -344,6 +423,8 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
       class={props.class}
       role="group"
       aria-label={props.ariaLabel ?? "Date range calendar"}
+      aria-labelledby={props.ariaLabelledby}
+      aria-describedby={props.ariaDescribedby}
       style={props.styles?.root}
     >
       <div data-part="header" style={props.styles?.header}>
@@ -409,7 +490,18 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
           ›
         </button>
       </div>
-      <div data-part="grid" role="grid" style={props.styles?.grid}>
+      <div
+        data-part="grid"
+        role="grid"
+        style={props.styles?.grid}
+        ref={(element) => {
+          if (!(element instanceof HTMLElement)) return;
+          gridElement = element;
+          onCleanup(() => {
+            if (gridElement === element) gridElement = undefined;
+          });
+        }}
+      >
         <div data-part="weekdays" role="row">
           {WEEKDAYS.map((day) => (
             <span
@@ -471,6 +563,9 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
                       data-range-edge={rangeEdge ?? undefined}
                       role="gridcell"
                       disabled={props.disabled}
+                      tabIndex={
+                        !props.disabled && dateStr === activeDate.get() ? 0 : -1
+                      }
                       aria-selected={isSelected || isInRange ? "true" : "false"}
                       aria-current={isToday ? "date" : undefined}
                       style={props.styles?.day?.(
@@ -483,6 +578,12 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
                         function update(): void {
                           const c = cellPulse.get();
                           const nextDateStr = formatDate(c.date);
+                          el.setAttribute(
+                            "tabindex",
+                            !props.disabled && nextDateStr === activeDate.get()
+                              ? "0"
+                              : "-1",
+                          );
                           const nextRange = state.state.get();
                           const nextStart =
                             nextRange.start !== "" &&
@@ -561,7 +662,16 @@ export const HlDateRangePicker = component<DateRangePickerProps>((props) => {
                         }
                         onCleanup(state.state.on(update));
                         onCleanup(cellPulse.on(update));
+                        onCleanup(activeDate.on(update));
                       }}
+                      onFocus={() => {
+                        if (!props.disabled) {
+                          activeDate.set(formatDate(cellPulse.get().date));
+                        }
+                      }}
+                      onKeyDown={(event: KeyboardEvent) =>
+                        handleDayKeyDown(cellPulse.get(), event)
+                      }
                       onClick={(event: MouseEvent) =>
                         selectDay(cellPulse.get(), event)
                       }

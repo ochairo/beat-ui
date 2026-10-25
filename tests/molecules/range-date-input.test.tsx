@@ -14,6 +14,180 @@ function findCurrentMonthDayButton(
 }
 
 describe("DateRangeInput", () => {
+  it("honors readOnly in both field editing handlers", () => {
+    const target = document.createElement("div");
+    const value = pulse<DateRangeValue>({
+      start: "2025-06-15",
+      end: "2025-06-18",
+    });
+    const seen: DateRangeValue[] = [];
+    const cleanup = render(
+      target,
+      <DateRangeInput
+        value={value}
+        readOnly
+        onValueChange={(next) => seen.push(next)}
+      />,
+    );
+
+    try {
+      const inputs = target.querySelectorAll("input");
+      expect(inputs).toHaveLength(2);
+      for (const input of inputs) {
+        const original = input.value;
+        for (const key of ["6", "Backspace", "Delete"]) {
+          input.setSelectionRange(3, 4);
+          input.dispatchEvent(
+            new KeyboardEvent("keydown", { key, bubbles: true }),
+          );
+          expect(input.value).toBe(original);
+        }
+        input.value = "20300615";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        expect(input.value).toBe(original);
+      }
+      expect(value.get()).toEqual({ start: "2025-06-15", end: "2025-06-18" });
+      expect(seen).toEqual([]);
+      value.set({ start: "2025-07-20", end: "2025-07-22" });
+      expect(Array.from(inputs, (input) => input.value)).toEqual([
+        "2025-07-20",
+        "2025-07-22",
+      ]);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("associates the range group with external labels and instructions", () => {
+    const target = document.createElement("div");
+    const cleanup = render(
+      target,
+      <DateRangeInput
+        ariaLabel="Trip"
+        ariaLabelledby="trip-label"
+        ariaDescribedby="trip-help"
+      />,
+    );
+    try {
+      const group = target.querySelector("[role='group']");
+      expect(group?.getAttribute("aria-label")).toBe("Trip");
+      expect(group?.getAttribute("aria-labelledby")).toBe("trip-label");
+      expect(group?.getAttribute("aria-describedby")).toBe("trip-help");
+      expect(
+        target.querySelector("input[aria-label='Trip start']"),
+      ).not.toBeNull();
+      expect(target.querySelector("input[aria-label='Trip end']")).not.toBeNull();
+    } finally {
+      cleanup();
+    }
+  });
+
+  it.each([false, true])("reports one blur only on leaving the composite (popup relocated: %s)", async (relocated) => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const blurred: FocusEvent[] = [];
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DateRangeInput
+          defaultValue={{ start: "2025-05-20", end: "" }}
+          onBlur={(event) => blurred.push(event)}
+        />
+        <button data-after="true">After</button>
+      </ThemeRoot>,
+    );
+    let disposed = false;
+    try {
+      if (relocated) await Promise.resolve();
+      const start = target.querySelector<HTMLInputElement>(
+        "input[aria-label='Start date']",
+      );
+      const end = target.querySelector<HTMLInputElement>(
+        "input[aria-label='End date']",
+      );
+      const toggle = target.querySelector<HTMLButtonElement>(
+        "button[aria-label='Toggle date range calendar']",
+      );
+      const after = target.querySelector<HTMLButtonElement>("[data-after]");
+      const day = target.querySelector<HTMLButtonElement>("button[role='gridcell']");
+      if (!start || !end || !toggle || !after || !day) {
+        throw new Error("Missing range controls");
+      }
+      start.focus();
+      end.focus();
+      toggle.focus();
+      expect(blurred).toEqual([]);
+      after.focus();
+      expect(blurred).toHaveLength(1);
+
+      start.focus();
+      // Native focus events also exercise deduplication before queued popup relocation.
+      day.focus();
+      toggle.focus();
+      expect(blurred).toHaveLength(1);
+      day.focus();
+      after.focus();
+      expect(blurred).toHaveLength(2);
+
+      cleanup();
+      disposed = true;
+      day.dispatchEvent(
+        new FocusEvent("focusout", { bubbles: true, relatedTarget: after }),
+      );
+      expect(blurred).toHaveLength(2);
+    } finally {
+      if (!disposed) cleanup();
+      target.remove();
+    }
+  });
+
+  it("returns completed range selection focus to the toggle and preserves outside dismissal focus", async () => {
+    const target = document.createElement("div");
+    document.body.appendChild(target);
+    const blurred: FocusEvent[] = [];
+    const cleanup = render(
+      target,
+      <ThemeRoot>
+        <DateRangeInput
+          defaultValue={{ start: "2025-05-20", end: "" }}
+          onBlur={(event) => blurred.push(event)}
+        />
+        <button data-after="true">After</button>
+      </ThemeRoot>,
+    );
+    try {
+      await Promise.resolve();
+      const toggle = target.querySelector<HTMLButtonElement>(
+        "button[aria-label='Toggle date range calendar']",
+      );
+      const day = findCurrentMonthDayButton(target, 22);
+      const after = target.querySelector<HTMLButtonElement>("[data-after]");
+      const dialog = target.querySelector<HTMLElement>("[role='dialog']");
+      if (!toggle || !day || !after || !dialog) {
+        throw new Error("Missing range controls");
+      }
+      toggle.focus();
+      toggle.click();
+      day.focus();
+      day.click();
+      expect(document.activeElement).toBe(toggle);
+      expect(dialog.style.display).toBe("none");
+      expect(blurred).toEqual([]);
+      after.focus();
+      expect(blurred).toHaveLength(1);
+
+      toggle.focus();
+      toggle.click();
+      after.focus();
+      after.click();
+      expect(document.activeElement).toBe(after);
+      expect(blurred).toHaveLength(2);
+    } finally {
+      cleanup();
+      target.remove();
+    }
+  });
+
   it("reconciles the active field when a completed edit reorders the range", () => {
     const target = document.createElement("div");
     const value = pulse<DateRangeValue>({

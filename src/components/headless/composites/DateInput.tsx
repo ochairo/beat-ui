@@ -9,6 +9,7 @@ import {
 } from "../../../foundations";
 import type { BeatUiRenderable } from "../../../runtime";
 import {
+  isFocusLeavingFloatingLayer,
   isWithinFloatingLayer,
   moveFloatingLayerToHost,
   positionFloatingLayer,
@@ -231,6 +232,7 @@ export const HlDateInput = component<DateInputProps>((props) => {
 
   const isOpen = pulse(false);
   let rootEl: HTMLDivElement | null = null;
+  let inputEl: HTMLInputElement | null = null;
   let calendarWrapperEl: HTMLElement | null = null;
   let cleanupCalendarTracking: (() => void) | null = null;
   const slots: (string | null)[] = Array.from<string | null>({
@@ -334,6 +336,10 @@ export const HlDateInput = component<DateInputProps>((props) => {
 
   function handleInput(event: Event): void {
     const input = event.currentTarget as HTMLInputElement;
+    if (props.readOnly || props.disabled) {
+      input.value = display.get();
+      return;
+    }
     const digits = input.value.replace(/\D/g, "").slice(0, slotCount);
     const parsed = parseDigits(digits, slotCount);
     for (let i = 0; i < slotCount; i++) {
@@ -354,6 +360,7 @@ export const HlDateInput = component<DateInputProps>((props) => {
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
+    if (props.readOnly || props.disabled) return;
     const input = event.currentTarget as HTMLInputElement;
     const cursor = input.selectionStart ?? 0;
 
@@ -449,16 +456,26 @@ export const HlDateInput = component<DateInputProps>((props) => {
     }
   }
 
+  function handleFocusOut(event: FocusEvent): void {
+    if (rootEl && isFocusLeavingFloatingLayer(event, rootEl, calendarWrapperEl)) {
+      props.onBlur?.(event);
+    }
+  }
+
   return (
     <div
       class={props.containerClass}
       style={props.styles?.root}
       ref={(el) => {
-        rootEl = el as HTMLDivElement;
+        if (!(el instanceof HTMLDivElement)) return;
+        rootEl = el;
+        el.addEventListener("focusout", handleFocusOut);
         if (supportsCalendar) {
           document.addEventListener("click", handleDocumentClick, true);
         }
         onCleanup(() => {
+          el.removeEventListener("focusout", handleFocusOut);
+          if (rootEl === el) rootEl = null;
           stopCalendarTracking();
           if (supportsCalendar) {
             document.removeEventListener("click", handleDocumentClick, true);
@@ -473,6 +490,13 @@ export const HlDateInput = component<DateInputProps>((props) => {
       >
         <div style="position:relative;flex:1;min-width:0;align-self:stretch;height:100%">
           <input
+            ref={(el) => {
+              if (!(el instanceof HTMLInputElement)) return;
+              inputEl = el;
+              onCleanup(() => {
+                if (inputEl === el) inputEl = null;
+              });
+            }}
             type="text"
             data-part="input"
             id={props.id}
@@ -493,13 +517,6 @@ export const HlDateInput = component<DateInputProps>((props) => {
             onInput={handleInput}
             onKeyDown={handleKeyDown}
             onFocus={props.onFocus}
-            onBlur={(event: FocusEvent) => {
-              const rel = (event as FocusEvent & { relatedTarget: Node | null })
-                .relatedTarget;
-              if (!isWithinFloatingLayer(rel, rootEl, calendarWrapperEl)) {
-                props.onBlur?.(event);
-              }
-            }}
           />
           <div
             data-part="input-overlay"
@@ -554,18 +571,21 @@ export const HlDateInput = component<DateInputProps>((props) => {
           role="dialog"
           style={props.styles?.calendarWrapper}
           onClick={(event: MouseEvent) => {
-            if (isCalendarDayCellTarget(event.target)) {
+            if (isOpen.get() && isCalendarDayCellTarget(event.target)) {
+              inputEl?.focus();
               isOpen.set(false);
             }
           }}
           ref={(el) => {
             const htmlEl = el as HTMLElement;
             calendarWrapperEl = htmlEl;
+            htmlEl.addEventListener("focusout", handleFocusOut);
             htmlEl.style.display = "none";
             if (htmlEl.style.zIndex === "") {
               htmlEl.style.zIndex = resolveFloatingLayerZIndex(rootEl);
             }
             onCleanup(() => {
+              htmlEl.removeEventListener("focusout", handleFocusOut);
               if (calendarWrapperEl === htmlEl) {
                 calendarWrapperEl = null;
               }
